@@ -1,1 +1,6 @@
-pyhdb==0.1.0
+Django==1.8.1
+django-globetrotter==0.0.5
+django-hana==1.1
+flufl.i18n==1.1.3
+pyhdb==0.2.2
+pytz==2015.2

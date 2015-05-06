@@ -5,14 +5,6 @@ __pycache__/
 # C extensions
 *.so
 
-#credentials
-credentials_hana.py
-
-# pyhdb
-pyhdb/
-
-#secret key
-secret_key.py
 
 # Distribution / packaging
 .Python
@@ -50,7 +42,6 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*,cover
 
 # Translations
 *.mo
