@@ -7,7 +7,4 @@ connection = pyhdb.connect(
 	user=USER, 
 	password=PASSWORD)
 
-cursor = connection.cursor()
-cursor.execute("SELECT Name FROM FARE")
-print(cursor.fetchall())
 connection.close()
