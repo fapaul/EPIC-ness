@@ -1,8 +1,14 @@
 <!doctype html>
 <title>EPIC-ness</title>
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
+<script type="text/javascript">
+  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}
+</script>
 <div class="page">
-  <h1>Flaskr</h1>
+  <h1>EPIC-ness</h1>
   <div class="metanav">
   {% if not session.logged_in %}
     <a href="{{ url_for('login') }}">log in</a>

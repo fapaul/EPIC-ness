@@ -1,7 +1,8 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, Response, jsonify
 from credentials_hana import db_HOST, db_PORT, db_USER, db_PASSWORD, flask_user, flask_password
 from secret_key import SECRET
 import pyhdb
+import json
 
 #configuration
 DEBUG = True
@@ -29,15 +30,28 @@ def teardown_request(exception):
 	if db is not None:
 		db.close()
 
-@app.route('/')
-def show_entries():
-	print "app route"
+@app.route('/showMarker')
+def showMarker():
 	cur = g.db.cursor()
 	print cur
 	print "cursor initialized"
-	cur.execute("SELECT DRIVER FROM NYCCAB.FARE")
+	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 1")
 	print "Query succeed"
-	entries = cur.fetchone()
+	entries = [json.dumps(dict(long=row[0], lat=row[1])) for row in cur.fetchall()]
+	return Response(entries)
+
+ 
+@app.route('/')
+def show_entries():
+	'''
+	cur = g.db.cursor()
+	print cur
+	print "cursor initialized"
+	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 1")
+	print "Query succeed"
+	entries = [json.dumps(dict(long=row[0], lat=row[1])) for row in cur.fetchall()]
+	'''
+	entries = 1
 	return render_template('show_entries.html', entries=entries)
 
 @app.route('/login', methods=['GET', 'POST'])
