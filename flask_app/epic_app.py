@@ -35,9 +35,9 @@ def showMarker():
 	cur = g.db.cursor()
 	print cur
 	print "cursor initialized"
-	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 1")
+	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 10")
 	print "Query succeed"
-	entries = [json.dumps(dict(long=row[0], lat=row[1])) for row in cur.fetchall()]
+	entries = json.dumps([dict(long=row[0], lat=row[1]) for row in cur.fetchall()])
 	return Response(entries)
 
  

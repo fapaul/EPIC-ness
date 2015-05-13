@@ -3,11 +3,12 @@ var map;
 
 $(function getMarker(){
 	$.getJSON($SCRIPT_ROOT + "/showMarker", function(data){
-		initialize(data);
+		console.log(data[0]);
+		initialize(data[0]);
 		google.maps.event.addDomListener(window, 'load', initialize);
-		//for each (point in data){
-		buildMarker(data)
-		//}
+		for (point in data){
+			buildMarker(data[point])
+		}
 	});
 });
 
@@ -24,6 +25,7 @@ function initialize(point) {
 }
 
 function buildMarker(point){
+	console.log('building marker')
 	var marker = new google.maps.Marker({
 		position: new google.maps.LatLng(point.lat, point.long),
 		map: map,
