@@ -43,14 +43,6 @@ def showMarker():
  
 @app.route('/')
 def show_entries():
-	'''
-	cur = g.db.cursor()
-	print cur
-	print "cursor initialized"
-	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 1")
-	print "Query succeed"
-	entries = [json.dumps(dict(long=row[0], lat=row[1])) for row in cur.fetchall()]
-	'''
 	entries = 1
 	return render_template('show_entries.html', entries=entries)
 
