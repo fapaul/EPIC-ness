@@ -1,0 +1,10 @@
+
+div#chart {
+	background-color: #FDD;
+	position: absolute;
+	top: 50px;
+	left: 50%;
+	margin-left: -300px;
+	width: 600px;
+	height: 350px;
+}
