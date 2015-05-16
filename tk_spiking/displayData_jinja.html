@@ -2,11 +2,9 @@
 <html>
 <head>
 	<meta charset="UTF-8" />
-	<!-- Reloading Cache: 400 ms, 100 ms -->
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" ></script>
-	<!-- Reloading Cache: ~1 s, 600 ms -->
 	<script type="text/javascript" src="http://mbostock.github.com/d3/d3.js"></script>
-	<script type="text/javascript" src="chartData.json"></script>
+	{% if not chartDataAsJson %}<script type="text/javascript" src="chartDataExample.js"></script>{% endif %}
 	<script src="displayChart.js" ></script>
 	<link href="view.css" rel="stylesheet">
 	<title>HANA Studio - Display chart</title>
@@ -15,7 +13,8 @@
 	<div id="chart"></div>
 	<script type="text/javascript">
 		// Init data
-		var data = JSON.parse(chartDataAsJson).data.bars;
+		// ATTENTION: chartDataAsJson -> " or '
+		var data = JSON.parse({% if chartDataAsJson %}'{{chartDataAsJson}}'{% else %}chartDataAsJsonExample{% endif %}).data.bars;
 		for(var i = 0; i < data.length; i++)
 			data[i]['average'] = +data[i]['average']; // Make sure that the value is recognized as an int value
 
