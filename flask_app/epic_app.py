@@ -33,10 +33,7 @@ def teardown_request(exception):
 @app.route('/showMarker')
 def showMarker():
 	cur = g.db.cursor()
-	print cur
-	print "cursor initialized"
 	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 10")
-	print "Query succeed"
 	entries = json.dumps([dict(long=row[0], lat=row[1]) for row in cur.fetchall()])
 	return Response(entries)
 
@@ -65,6 +62,18 @@ def logout():
 	session.pop('logged_in', None)
 	flash('You were logged out')
 	return redirect(url_for('show_entries'))
+
+
+@app.route('/barChart')
+def showBarChart():
+	chartContent = None
+	cur = g.db.cursor()
+	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 10")
+	entries = json.dumps([dict(long=row[0], lat=row[1]) for row in cur.fetchall()])
+	return render_template('barChart.html', chartDataAsJson = chartContent)
+
+
+
 
 if __name__ == '__main__':
 	app.run()
