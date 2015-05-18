@@ -1,9 +1,9 @@
 function displayChart(chartData, divName) {
 	var keys = Object.keys(chartData[0]), // First element determines the key names
-		name = keys[0],
-		value = keys[1],
+		name = keys[1],
+		value = keys[0],
 		div = d3.select('#'+divName),
-		margin = {top: 20, right: 30, bottom: 30, left: 40},
+		margin = {top: 20, right: 20, bottom: 30, left: 70},
 		width = div.style('width').substring(0, 3) - margin.left - margin.right, // Removing 'px' suffix
 		height = div.style('height').substring(0, 3) - margin.top - margin.bottom
 	

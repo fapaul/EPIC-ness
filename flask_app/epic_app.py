@@ -63,16 +63,28 @@ def logout():
 	flash('You were logged out')
 	return redirect(url_for('show_entries'))
 
+@app.route('/chooseChart')
+def chooseChart():
+	return render_template('chooseChart.html')
 
-@app.route('/barChart')
-def showBarChart():
-	chartContent = None
+@app.route('/barChart/<chartName>')
+def barChart(chartName):
+	if (chartName == None):
+		chartName = 'SumTotalPerMonth' # Define default example chart
+	return render_template('barChart.html', chartName = chartName)
+
+# Called by AJAX
+@app.route('/loadBarChart/<chartName>')
+def loadBarChart(chartName):
 	cur = g.db.cursor()
-	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 10")
-	entries = json.dumps([dict(long=row[0], lat=row[1]) for row in cur.fetchall()])
-	return render_template('barChart.html', chartDataAsJson = chartContent)
-
-
+	query = open('./queries/' + chartName + '.sql').read()
+	cur.execute(query)
+	leftKey = cur.description[0][0].lower()
+	rightKey = cur.description[1][0].lower()
+	result = cur.fetchall()
+	print result
+	chartContent = json.dumps([{leftKey:row[0], rightKey:row[1]} for row in result])
+	return chartContent
 
 
 if __name__ == '__main__':

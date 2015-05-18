@@ -4,6 +4,7 @@ div#chart {
 	top: 50px;
 	left: 50%;
 	margin-left: -400px;
+	background-color: #FFF;
 	width: 800px;
 	height: 500px;
 }

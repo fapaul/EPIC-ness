@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" ></script>
+	{% if not chartDataAsJson %}<script type="text/javascript" src="{{ url_for('static', filename='exampleData.js') }}"></script>{% endif %}
+	<script type="text/javascript" src="{{ url_for('static', filename='displayChart.js') }}" ></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='view.css') }}">
+	<title>Choose chart</title>
+</head>
+<body>
+	<div id="chart">
+		<a href="127.0.0.1:5000/barChart/CountDriversPerVendor">
+			Fahrer pro Unternehmer
+		</a>
+		<br/><br/>
+		<a href="127.0.0.1:5000/barChart/SumTotalPerMonth">
+			Zurückgelegte Strecke pro Monat
+		</a>
+		<br/><br/>
+		<a href="127.0.0.1:5000/barChart/SumDistancePerVendorInDecember">
+			Zurückgelegte Strecke pro Unternehmer (Dezember)
+		</a>
+		<br/>
+	</div>
+</body>
+</html>
