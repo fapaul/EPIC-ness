@@ -82,8 +82,12 @@ def loadBarChart(chartName):
 	leftKey = cur.description[0][0].lower()
 	rightKey = cur.description[1][0].lower()
 	result = cur.fetchall()
-	print result
-	chartContent = json.dumps([{leftKey:row[0], rightKey:row[1]} for row in result])
+	# FIXME: Dirty hotfix
+	if (chartName == "CountDriversPerVendor"):
+		print "Query doesn't work with pyhdb connector on windows for any reason -> datas are manually collected (HOTFIX)"
+		chartContent = json.dumps([{"unternehmen": "CMT", "fahreranzahl": 347979848}, {"unternehmen": "VTS", "fahreranzahl": 345592304}, {"unternehmen": "DDS", "fahreranzahl": 4050283}])
+	else:
+		chartContent = json.dumps([{leftKey:row[0], rightKey:row[1]} for row in result])
 	return chartContent
 
 

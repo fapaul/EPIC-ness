@@ -1,5 +1,4 @@
 import pyhdb
-from credentials_hana import db_HOST, db_PORT, db_USER, db_PASSWORD
 
 db = pyhdb.connect(
 		host = "192.168.30.206",

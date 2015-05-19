@@ -1,7 +1,7 @@
-function displayChart(chartData, divName) {
+function displayBarChart(chartData, divName) {
 	var keys = Object.keys(chartData[0]), // First element determines the key names
-		name = keys[1],
-		value = keys[0],
+		name = keys[0],
+		value = keys[1],
 		div = d3.select('#'+divName),
 		margin = {top: 20, right: 20, bottom: 30, left: 70},
 		width = div.style('width').substring(0, 3) - margin.left - margin.right, // Removing 'px' suffix
@@ -33,7 +33,8 @@ function displayChart(chartData, divName) {
 	
 	// Define the mark title of x and y axis
 	x.domain(chartData.map(function(d) { return d[name]; }))
-	y.domain([0, d3.max(chartData, function(d) { return d[value]; })])
+	var yMax = d3.max(chartData, function(d) { return d[value]; })
+	y.domain([0, yMax + yMax * 0.1]) // Adding 10% to get more space to the top border
 
 	// Add x axis to the display
 	svg.append('g')
@@ -57,9 +58,39 @@ function displayChart(chartData, divName) {
 		.data(chartData)
 	.enter().append('rect')
 		.attr('class', 'bar')
-		.attr('x', function(d) { return x(d[name]) })
+		.attr('x', function(d) { return x(d[name])})
 		.attr('width', x.rangeBand())
-		.attr('y', function(d) { return y(d[value]) })
-		.attr('height', function(d) { return height - y(d[value]) })
-	console.log(x)
+		.attr('y', function(d) { return y(d[value])})
+		.attr('height', function(d) { return height - y(d[value]) }) // 50 px distance to top border
+}
+
+function displayDonutChart(chartData, divName) {
+	var keys = Object.keys(chartData[0]),
+		name = keys[0],
+		value = keys[1],
+		pieData = [],
+		div = d3.select('#'+divName),
+		width = div.style('width').substring(0, 3), // Removing 'px' suffix
+		height = div.style('height').substring(0, 3)
+	// Convert chartData into the right format
+	for (var rowNum in chartData) {
+		pieData.push({label: chartData[rowNum][name], value: chartData[rowNum][value]})
+	}
+	
+	// Generate pie chart -> For more information: http://d3pie.org/#examples
+	var pie = new d3pie(divName, {
+		/*header: {
+			title: {
+				text: "A very simple example pie"
+			}
+		},*/
+		data: {
+			content: pieData
+		},
+		size: {
+			pieInnerRadius: "80%",
+			canvasWidth: width,
+			canvasHeight: height
+		}
+	})
 }
