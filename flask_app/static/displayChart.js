@@ -7,9 +7,6 @@ function displayBarChart(chartData, divName) {
 		width = div.style('width').substring(0, 3) - margin.left - margin.right, // Removing 'px' suffix
 		height = div.style('height').substring(0, 3) - margin.top - margin.bottom
 	
-		console.log('Data', chartData);
-		console.log('Schlüsselname', name);
-		console.log('Wertname', value);
 	// Defines the Space for the x axis and the distance between the axis marks
 	var x = d3.scale.ordinal()
 		.rangeRoundBands([0, width], .1)
