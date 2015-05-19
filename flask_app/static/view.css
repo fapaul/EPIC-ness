@@ -7,6 +7,18 @@ div#chart {
 	background-color: #FFF;
 	width: 800px;
 	height: 500px;
+	text-align: center;
+}
+
+#chart>a {
+	text-decoration: blink;
+	font-size: 20px;
+	color: cornflowerblue;
+}
+
+#chart>a:hover {
+	font-weight: bold;
+	color: rgb(0, 66, 184);
 }
 
 div#loadingAnimation {

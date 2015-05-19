@@ -88,12 +88,27 @@ def loadBarChart(chartName):
 	leftKey = cur.description[0][0].lower()
 	rightKey = cur.description[1][0].lower()
 	result = cur.fetchall()
+	
+	# FIXME: Dirty hotfix (keys are switched by list comprehension)
+	if chartName == "CountUsesPerPaymentType":
+		temp = leftKey
+		leftKey = rightKey
+		rightKey = temp
+	
 	# FIXME: Dirty hotfix
 	if (chartName == "CountDriversPerVendor"):
 		print "Query doesn't work with pyhdb connector on windows for any reason -> datas are manually collected (HOTFIX)"
 		chartContent = json.dumps([{"unternehmen": "CMT", "fahreranzahl": 347979848}, {"unternehmen": "VTS", "fahreranzahl": 345592304}, {"unternehmen": "DDS", "fahreranzahl": 4050283}])
 	else:
-		chartContent = json.dumps([{leftKey:row[0], rightKey:row[1]} for row in result])
+		chartContent = json.dumps([{leftKey:row[0], rightKey:row[1]} for row in result if row[0] != ''])
+
+	# Determine if the current bug occurred in this query
+	countEmptyRows = 0
+	for row in result:
+		if row[0] == '':
+			countEmptyRows = countEmptyRows + 1
+	if countEmptyRows > 0:
+		print 'WARNING: '+str(countEmptyRows)+' empty row'+('s' if countEmptyRows > 1 else '')+' discovered for query "'+chartName+'" !!!'
 	return chartContent
 
 
