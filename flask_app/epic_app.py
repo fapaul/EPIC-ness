@@ -99,6 +99,9 @@ def loadBarChart(chartName):
 	if (chartName == "CountDriversPerVendor"):
 		print "Query doesn't work with pyhdb connector on windows for any reason -> datas are manually collected (HOTFIX)"
 		chartContent = json.dumps([{"unternehmen": "CMT", "fahreranzahl": 347979848}, {"unternehmen": "VTS", "fahreranzahl": 345592304}, {"unternehmen": "DDS", "fahreranzahl": 4050283}])
+	elif chartName == "SumTotalPerVendorInApril2010":
+		print "Query doesn't work with pyhdb connector on windows for any reason -> datas are manually collected (HOTFIX)"
+		chartContent = json.dumps([{"unternehmen": "CMT", "umsatz": 6477535}, {"unternehmen": "DDS", "umsatz": 846870}, {"unternehmen": "VTS", "umsatz": 7268059}])
 	else:
 		chartContent = json.dumps([{leftKey:row[0], rightKey:row[1]} for row in result if row[0] != ''])
 
