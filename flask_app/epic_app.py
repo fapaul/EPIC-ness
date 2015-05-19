@@ -72,9 +72,15 @@ def barChart(chartName):
 	if (chartName == None):
 		chartName = 'SumTotalPerMonth' # Define default example chart
 	return render_template('barChart.html', chartName = chartName)
+	
+@app.route('/pieChart/<chartName>')
+def pieChart(chartName):
+	if (chartName == None):
+		chartName = 'SumTotalPerMonth' # Define default example chart
+	return render_template('pieChart.html', chartName = chartName)
 
 # Called by AJAX
-@app.route('/loadBarChart/<chartName>')
+@app.route('/loadChart/<chartName>')
 def loadBarChart(chartName):
 	cur = g.db.cursor()
 	query = open('./queries/' + chartName + '.sql').read()
