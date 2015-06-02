@@ -115,6 +115,10 @@ def loadBarChart(chartName):
 	return chartContent
 
 
+@app.route('/heatMapCal')
+def loadHeatMapCal():
+	return render_template('calMap.html')
+
 if __name__ == '__main__':
 	app.run()
 
