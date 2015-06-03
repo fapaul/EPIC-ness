@@ -29,3 +29,12 @@ footer {
         padding: 15px 0;
     }
 }
+
+#cal-heatmap {
+	padding-top: 20px;
+	padding-left: 10px;
+}
+
+#map-canvas	{
+	height: 400px;
+}

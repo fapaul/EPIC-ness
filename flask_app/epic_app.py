@@ -79,6 +79,10 @@ def pieChart(chartName):
 		chartName = 'SumTotalPerMonth' # Define default example chart
 	return render_template('pieChart.html', chartName = chartName)
 
+@app.route('/frontend')
+def frontend():
+	return render_template('frontend.html')
+
 # Called by AJAX
 @app.route('/loadChart/<chartName>')
 def loadBarChart(chartName):

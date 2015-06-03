@@ -8,14 +8,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+	
+	<!-- Calmap -->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cal-heatmap.css') }}">
 
     <title>Small Business - Start Bootstrap Template</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="css/small-business.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='small-business.css') }}" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -32,18 +35,15 @@
 
         <!-- Heading Row -->
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6" id="map-canvas">
 				<!-- TODO: Heatmap (Ajax) -->
-                <h1>Business Name or Tagline</h1>
-                <p>This is a template that is great for small businesses. It doesn't have too much fancy flare to it, but it makes a great use of the standard Bootstrap core components. Feel free to use this template for any project you want!</p>
-                <a class="btn btn-primary btn-lg" href="#">Call to Action!</a>
             </div>
-            <!-- /.col-md-4 -->
-            <div class="col-md-8">
+            <!-- /.col-md-6 -->
+            <div class="col-md-6">
 				<!-- TODO: Calmap (Paul) -->
-                <img class="img-responsive img-rounded" src="http://placehold.it/900x350" alt="">
+				<div id="cal-heatmap"></div>
             </div>
-            <!-- /.col-md-8 -->
+            <!-- /.col-md-6 -->
         </div>
         <!-- /.row -->
 		<br/>
@@ -84,11 +84,23 @@
     <!-- /.container -->
 
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+    <script src="{{ url_for('static', filename='jquery.js') }}"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
+	<!-- Calmap -->
+	<script src="{{ url_for('static', filename='d3.v3.min.js') }}" charset="utf-8"></script>
+	<script src="{{ url_for('static', filename='cal-heatmap.min.js') }}" ></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='calMap.js') }}"></script>
+	
+	<!-- Heatmap -->
+	<!--<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=visualization"></script>-->
+	<script src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
+	<script src="{{ url_for('static', filename='heatMap.js') }}">heatmap()</script>
+	
+	<!-- TODO: D3 Balkendiagramme -->
+	<!-- TODO: Balkendiagramm-Events abfangen -> AJAX auf Python (Hana query) -> Heatmap & CalMap reloaden -->
 </body>
 
 </html>
