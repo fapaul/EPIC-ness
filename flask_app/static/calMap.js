@@ -1,12 +1,24 @@
 $(function displayCalMap(){
 	var cal = new CalHeatMap();
 	cal.init({
-		domain: "hour",
-		subdomain: "hour",
+		weekStartonMonday: true,
+		domain: "day",
+		subdomain: "x_hour",
+		cellSize: 30,
 		data: "http://localhost:5000/static/calMapData.json",
-		start: new Date(2000, 0, 1, 6),
+		start: new Date(2000, 0, 3, 6),
 		browsing: true,
-		range: 10,
+		range: 7,
+		colLimit: 24,
+		domainMargin: [0, 0, 0 , 20],
+		verticalOrientation: true,
+		domainLabelFormat: "%A",
+		domainGutter: 5,
+		legendHorizontalPosition: "center",
+		label: {
+			position: "left",
+			width: 46,
+		}
 
 	});
 	console.log(cal.data);

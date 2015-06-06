@@ -32,7 +32,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/fabian/Desktop/HPI/Epic_Seminar/EPIC-ness/venv"
+set -gx VIRTUAL_ENV "/Users/Fabian/Documents/HPI/Semester_4/Enterprise_Seminar/EPIC-ness/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

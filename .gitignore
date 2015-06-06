@@ -16,6 +16,7 @@ secret_key.py
 
 # Distribution / packaging
 .Python
+venv/
 env/
 build/
 develop-eggs/
