@@ -27,6 +27,16 @@ function initialize() {
 	heatMap(map);
 }
 
+function getMapEdges(Map) {
+	var bottomLeft = Map.getBounds().getSouthWest();
+	var topRight = Map.getBounds().getNorthEast();
+	var center = Map.getCenter();
+	var zoom = Map.Zoom();
+
+	return Map.getBounds();
+//Todo: check for events bounds_changed, center_changed, zoom_changed, drag (and projection_changed)
+}
+
 /*SELECT TRIP.PICKUP_LAT AS LatC, TRIP.PICKUP_LONG AS LongC
 FROM NYCCAB.TRIP_DOUBLE AS TRIP
 WHERE TRIP.PICKUP_LAT <> 0
