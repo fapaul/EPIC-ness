@@ -36,12 +36,13 @@
         <!-- Heading Row -->
         <div class="row">
             <div class="col-md-6" id="map-canvas">
-				<!-- TODO: Heatmap (Ajax) -->
+				<!-- Heatmap (Ajay) -->
             </div>
             <!-- /.col-md-6 -->
             <div class="col-md-6">
-				<!-- TODO: Calmap (Paul) -->
-				<div id="cal-heatmap"></div>
+				<div id="cal-heatmap">
+					<!-- Calmap (Paul) -->
+				</div>
             </div>
             <!-- /.col-md-6 -->
         </div>
@@ -50,22 +51,31 @@
         <!-- Content Row -->
         <div class="row">
 			<!-- Selectable Balkendiagramm zu Jahr, Monat & Woche (Thomas) -->
-            <div class="col-md-4">
-                <h2>Jahr</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe rem nisi accusamus error velit animi non ipsa placeat. Recusandae, suscipit, soluta quibusdam accusamus a veniam quaerat eveniet eligendi dolor consectetur.</p>
-                <a class="btn btn-default" href="#">More Info</a>
+            <div id="barchart-1-container" class="col-md-4">
+				<div id="barchart-1">
+					<!-- Barchart of Years -->
+				</div>
+				<div class="barchart-title">
+					Year
+				</div>
             </div>
             <!-- /.col-md-4 -->
-            <div class="col-md-4">
-                <h2>Monat</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe rem nisi accusamus error velit animi non ipsa placeat. Recusandae, suscipit, soluta quibusdam accusamus a veniam quaerat eveniet eligendi dolor consectetur.</p>
-                <a class="btn btn-default" href="#">More Info</a>
+            <div id="barchart-2-container" class="col-md-4">
+				<div id="barchart-2">
+					<!-- Barchart of Months -->
+				</div>
+				<div class="barchart-title">
+					Month
+				</div>
             </div>
             <!-- /.col-md-4 -->
-            <div class="col-md-4">
-                <h2>Woche</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe rem nisi accusamus error velit animi non ipsa placeat. Recusandae, suscipit, soluta quibusdam accusamus a veniam quaerat eveniet eligendi dolor consectetur.</p>
-                <a class="btn btn-default" href="#">More Info</a>
+            <div id="barchart-3-container" class="col-md-4">
+				<div id="barchart-3">
+					<!-- Barchart of Weaks -->
+				</div>
+				<div class="barchart-title">
+					Weak
+				</div>
             </div>
             <!-- /.col-md-4 -->
         </div>
@@ -92,12 +102,16 @@
 	<!-- Calmap -->
 	<script src="{{ url_for('static', filename='d3.v3.min.js') }}" charset="utf-8"></script>
 	<script src="{{ url_for('static', filename='cal-heatmap.min.js') }}" ></script>
-	<script type="text/javascript" src="{{ url_for('static', filename='calMap.js') }}"></script>
+	<script src="{{ url_for('static', filename='calMap.js') }}"></script>
 	
 	<!-- Heatmap -->
 	<!--<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=visualization"></script>-->
 	<script src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
-	<script src="{{ url_for('static', filename='heatMap.js') }}">heatmap()</script>
+	<script src="{{ url_for('static', filename='heatMap.js') }}"></script>
+	
+	<!-- Barcharts -->
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+	<script src="{{ url_for('static', filename='displayChart.js') }}">console.log('Test A'); barcharts()</script>
 	
 	<!-- TODO: D3 Balkendiagramme -->
 	<!-- TODO: Balkendiagramm-Events abfangen -> AJAX auf Python (Hana query) -> Heatmap & CalMap reloaden -->

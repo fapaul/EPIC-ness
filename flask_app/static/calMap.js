@@ -5,7 +5,7 @@ $(function displayCalMap(){
 		domain: "day",
 		subdomain: "x_hour",
 		cellSize: 30,
-		data: "http://localhost:5000/static/calMapData.json",
+		data: "/static/calMapData.json",
 		start: new Date(2000, 0, 3, 6),
 		browsing: true,
 		range: 7,
