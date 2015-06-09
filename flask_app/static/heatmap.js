@@ -11,20 +11,21 @@ $(function getMarker(){
 		}*//*
 		
 	});*/
-	google.maps.event.addDomListener(window, 'load', initialize);
+	google.maps.event.addDomListener(window, 'load', initializeHeatmap);
 });
 
-function initialize() {
+var googlemap;
+function initializeHeatmap() {
 	var newYorkCity = new google.maps.LatLng(40.76103210449219, -73.97576141357422);
 
-	map = new google.maps.Map(document.getElementById('map-canvas'), {
+	googlemap = new google.maps.Map(document.getElementById('map-canvas'), {
 	  center: newYorkCity,
 	  zoom: 11,
 	  mapTypeId: google.maps.MapTypeId.SATELLITE
 	})
 
-	console.log("map initialized");
-	heatMap(map);
+	console.log("google map initialized");
+	heatMapDummy();
 }
 
 function getMapEdges(Map) {
@@ -43,7 +44,39 @@ WHERE TRIP.PICKUP_LAT <> 0
 AND TRIP.PICKUP_LONG <> 0
 ORDER BY TRIP.RATE DESC
 LIMIT 100*/
-function heatMap(map){
+function heatMap() {
+	// query = "SELECT TRIP.PICKUP_LAT AS LatC, TRIP.PICKUP_LONG AS LongC FROM NYCCAB.TRIP_DOUBLE AS TRIP WHERE TRIP.PICKUP_LAT <> 0 AND TRIP.PICKUP_LONG <> 0 ORDER BY TRIP.RATE DESC LIMIT 100"
+	years = ["2010", "2012"]
+	months = ["1", "2", "5", "12"];
+	weeks = ["1", "2"];
+	
+	$.ajax({
+		type: "POST",
+		url: "/heatmap",
+		data: {"years": years,
+			"months": months,
+			"weeks": weeks},
+		success: heatMapCallback
+	})
+}
+
+function heatMapCallback(heatmapData) {
+	heatmapData = JSON.parse(heatmapData)
+	for(var i = 0; i < heatmapData.length; i++) {
+		heatmapData[i] = new google.maps.LatLng(heatmapData[i]['lat'], heatmapData[i]['long'])
+	}
+	// console.log(heatmapData)
+	
+	heatmap.setMap(null)
+	
+	heatmap = new google.maps.visualization.HeatmapLayer({
+	  data: heatmapData
+	});
+	heatmap.setMap(googlemap);
+}
+
+var heatmap;
+function heatMapDummy(){
 	var heatmapData = [
 	  new google.maps.LatLng(40.645320892333984, -73.7768783569336),
 	  new google.maps.LatLng(40.72430419921875, -73.9999008178711),
@@ -146,8 +179,8 @@ function heatMap(map){
 	  new google.maps.LatLng(40.645626068115234, -73.77687072753906)
 	];
 
-	var heatmap = new google.maps.visualization.HeatmapLayer({
+	heatmap = new google.maps.visualization.HeatmapLayer({
 	  data: heatmapData
 	});
-	heatmap.setMap(map);
+	heatmap.setMap(googlemap);
 }

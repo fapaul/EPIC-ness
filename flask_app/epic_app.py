@@ -33,9 +33,33 @@ def teardown_request(exception):
 @app.route('/showMarker')
 def showMarker():
 	cur = g.db.cursor()
-	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LONG as longi, TRIP_DOUBLE.PICKUP_LAT as lat  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_LONG <> 0 AND TRIP_DOUBLE.PICKUP_LAT <> 0) LIMIT 10")
-	entries = json.dumps([dict(long=row[0], lat=row[1]) for row in cur.fetchall()])
+	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LAT as lati, TRIP_DOUBLE.PICKUP_LONG as long  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_lat <> 0 AND TRIP_DOUBLE.PICKUP_LONG <> 0) LIMIT 10")
+	entries = json.dumps([dict(lat=row[0], long=row[1]) for row in cur.fetchall()])
 	return Response(entries)
+
+@app.route('/heatmap', methods=['GET', 'POST'])
+def heatmap():
+	if request.method == 'POST':
+		years = request.form.getlist('years[]');
+		months = request.form.getlist('months[]');
+		weeks = request.form.getlist('weeks[]');
+		# latitude/longitude von ursprung/extend
+	# FIXME: ICH SEH NIX DAVON!
+	return json.dumps([
+		dict(lat=40.645320892333984, long=-73.7768783569336),
+		dict(lat=40.72430419921875, long=-73.9999008178711),
+		dict(lat=40.762916564941406, long=-73.99524688720703),
+		dict(lat=40.747989654541016, long=-73.97357940673828),
+		dict(lat=40.68174362182617, long=-73.98006439208984),
+		dict(lat=40.774208068847656, long=-73.87296295166016),
+		dict(lat=40.75990676879883, long=-73.99391174316406),
+		dict(lat=40.76718521118164, long=-73.99007415771484),
+		dict(lat=40.645050048828125, long=-73.79256439208984),
+		dict(lat=40.751739501953125, long=-73.89812469482422),
+		dict(lat=40.78850555419922, long=-73.94905853271484),
+	 	dict(lat=40.72579574584961, long=-73.9828872680664),
+		dict(lat=40.72705078125, long=-73.99354553222656),
+	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
 
  
 @app.route('/')

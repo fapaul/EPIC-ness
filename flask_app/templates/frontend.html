@@ -71,10 +71,10 @@
             <!-- /.col-md-4 -->
             <div id="barchart-3-container" class="col-md-4">
 				<div id="barchart-3">
-					<!-- Barchart of Weaks -->
+					<!-- Barchart of Weeks -->
 				</div>
 				<div class="barchart-title">
-					Weak
+					Week
 				</div>
             </div>
             <!-- /.col-md-4 -->
@@ -105,15 +105,16 @@
 	<script src="{{ url_for('static', filename='calMap.js') }}"></script>
 	
 	<!-- Heatmap -->
-	<!--<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=visualization"></script>-->
 	<script src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
 	<script src="{{ url_for('static', filename='heatMap.js') }}"></script>
 	
 	<!-- Barcharts -->
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-	<script src="{{ url_for('static', filename='displayChart.js') }}">console.log('Test A'); barcharts()</script>
+	<script src="{{ url_for('static', filename='displayChart.js') }}"></script>
 	
-	<!-- TODO: D3 Balkendiagramme -->
+	<!-- Observer (Contains Updating functions)-->
+	<script src="{{ url_for('static', filename='observer.js') }}"></script>
+	
 	<!-- TODO: Balkendiagramm-Events abfangen -> AJAX auf Python (Hana query) -> Heatmap & CalMap reloaden -->
 </body>
 

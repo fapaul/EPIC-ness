@@ -7,7 +7,6 @@ $(function barcharts() {
 	
 	var weekData = [{"week": "1","average": "4"},{"week": "2","average": "3"},{"week": "3","average": "1"},{"week": "4","average": "2"},{"week": "5","average": "1"}];
 	displayBarChart(weekData, 'barchart-3')
-	
 })
 
 function displayBarChart(chartData, divName) {
@@ -89,9 +88,11 @@ function displayBarChart(chartData, divName) {
 			if (!d['clicked']) {
 				d['clicked'] = true;
 				d3.select(this).classed("highlight", true);
+				updateObserver(d);
 			} else {
 				d['clicked'] = false;
 				d3.select(this).classed("highlight", false);
+				updateObserver(d);
 			}
 		})
 		.on("mouseover", function(d) {
