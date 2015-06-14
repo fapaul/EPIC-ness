@@ -3,8 +3,6 @@ var map;
 
 $(function getMarker(){
 	$.getJSON($SCRIPT_ROOT + "/showMarker", function(data){
-		console.log(data[0]);
-		initialize(data[0]);
 		google.maps.event.addDomListener(window, 'load', initialize);
 		for (point in data){
 			buildMarker(data[point])
