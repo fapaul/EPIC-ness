@@ -44,7 +44,12 @@ def heatmap():
 		months = request.form.getlist('months[]');
 		weeks = request.form.getlist('weeks[]');
 		# latitude/longitude von ursprung/extend
-	# FIXME: ICH SEH NIX DAVON!
+	
+	# TODO:
+	# 1.) Ajay's query aufrufen
+	# 2.) Long und Lat fenster mitgeben
+	# 3.) Daten für Balkendiagramm und Calmap mitgeben
+	
 	return json.dumps([
 		dict(lat=40.645320892333984, long=-73.7768783569336),
 		dict(lat=40.72430419921875, long=-73.9999008178711),
