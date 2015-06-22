@@ -31,3 +31,7 @@ dailyStatement = "SELECT day, AVG(TOTAL) as Average_Total
 FROM NYCCAB.FARE 
 WHERE DAY(PICKUP_TIME) in ? and WEEK(PICKUP_TIME) in ? and MONTH(PICKUP_TIME) in ? and YEAR(PICKUP_TIME) in ?
 GROUP BY DAY(PICKUP_TIME) as day";
+
+"hourly"
+"orte"
+"quadrat in karte ziehen, die dann das Raster updatet"
