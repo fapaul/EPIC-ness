@@ -3,6 +3,7 @@ from credentials_hana import db_HOST, db_PORT, db_USER, db_PASSWORD, flask_user,
 from secret_key import SECRET
 import pyhdb
 import json
+import datetime
 
 #configuration
 DEBUG = True
@@ -148,6 +149,25 @@ def loadBarChart(chartName):
 def loadHeatMapCal():
 	return render_template('calMap.html')
 
+@app.route('/convertDateFormat')
+def convertHeatMapData():
+	monday = 946854000
+	sec_per_day = 86400
+	sec_per_minute = 60
+	sec_per_hour = 3600
+	cur = g.db.cursor()
+	cur.execute("SELECT HOUR(FARE.PICKUP_TIME), MINUTE(FARE.PICKUP_TIME), weekday(FARE.PICKUP_TIME) FROM NYCCAB.FARE LIMIT 1")
+	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
+	result = dict()
+	for timestamp in timestamps:
+		key = timestamp[2] * sec_per_day + monday + sec_per_hour * row[0] + sec_per_minute * row[1]
+		result[key] = 1
+	return Response(json.dumps(result))
+
+
 if __name__ == '__main__':
 	app.run()
+
+
+
 

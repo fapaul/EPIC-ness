@@ -1,5 +1,7 @@
+var cal
+
 $(function displayCalMap(){
-	var cal = new CalHeatMap();
+	cal = new CalHeatMap();
 	cal.init({
 		weekStartonMonday: true,
 		domain: "day",
@@ -26,4 +28,6 @@ $(function displayCalMap(){
 	console.log("succeed");
 })
 
-//Hack: aggregate comming time stamps to 3 - 9 January 2000
+
+
+//Hack: aggregate upcomming time stamps to 3 - 9 January 2000
