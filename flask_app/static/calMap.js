@@ -1,4 +1,5 @@
 var cal
+var highlighted = []
 
 $(function displayCalMap(){
 	cal = new CalHeatMap();
@@ -21,10 +22,26 @@ $(function displayCalMap(){
 		label: {
 			position: "left",
 			width: 46,
+		},
+		onClick: function(date, count){
+			console.log(highlighted)
+			var index = highlighted.map(Number).indexOf(+date)
+			console.log(index)
+			if(index != -1){
+				highlighted.splice(index,1)
+				console.log("delete cell")
+			}else{
+
+				highlighted.push(date)
+			}
+			if (highlighted.length == 0){
+				cal.highlight("now")
+			}else{
+				cal.highlight(highlighted)
+			}
 		}
 
 	});
 	console.log(cal.data);
 	console.log("succeed");
 })
-
