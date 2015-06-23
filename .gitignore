@@ -65,3 +65,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# TK Spiking
+tk_spiking/*

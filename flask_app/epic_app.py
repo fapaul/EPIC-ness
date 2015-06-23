@@ -156,12 +156,12 @@ def convertHeatMapData():
 	sec_per_minute = 60
 	sec_per_hour = 3600
 	cur = g.db.cursor()
-	cur.execute("SELECT HOUR(FARE.PICKUP_TIME), MINUTE(FARE.PICKUP_TIME), weekday(FARE.PICKUP_TIME) FROM NYCCAB.FARE LIMIT 2000")
+	cur.execute("SELECT HOUR(FARE.PICKUP_TIME), MINUTE(FARE.PICKUP_TIME), weekday(FARE.PICKUP_TIME) FROM NYCCAB.FARE LIMIT 700000")
 	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
 
 	result = dict()
 	for timestamp in timestamps:
-		print timestamp[2]
+		#print timestamp[2]
 		key = timestamp[2] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * timestamp[1]
 		if key in result:
 			result[key] += 1
@@ -169,10 +169,27 @@ def convertHeatMapData():
 			result[key] = 1
 	return Response(json.dumps(result))
 
+@app.route('/getMonthsByYears', methods=['GET', 'POST'])
+def queryMonths():
+	query = "SELECT MONTH(PICKUP_TIME), COUNT(*) FROM NYCCAB.FARE WHERE YEAR(PICKUP_TIME) in ? GROUP BY MONTH(PICKUP_TIME)"
+		
+	if request.method == 'GET':
+		years = request.args.getlist('years[]');
+	else: # POST method
+		years = request.form.getlist('years[]');
+	
+	print('Executing query...')
+	query = query.replace('?', '('+(','.join(years))+')')
+	cur = g.db.cursor()
+	cur.execute(query)
+	monthsCount = [{'month': row[0], 'count': row[1]} for row in cur.fetchall()]
+	print(monthsCount)
+	
+	return Response(json.dumps(monthsCount))
+	
+
 
 if __name__ == '__main__':
 	app.run()
-
-
 
 
