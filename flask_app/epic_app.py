@@ -156,12 +156,17 @@ def convertHeatMapData():
 	sec_per_minute = 60
 	sec_per_hour = 3600
 	cur = g.db.cursor()
-	cur.execute("SELECT HOUR(FARE.PICKUP_TIME), MINUTE(FARE.PICKUP_TIME), weekday(FARE.PICKUP_TIME) FROM NYCCAB.FARE LIMIT 1")
+	cur.execute("SELECT HOUR(FARE.PICKUP_TIME), MINUTE(FARE.PICKUP_TIME), weekday(FARE.PICKUP_TIME) FROM NYCCAB.FARE LIMIT 2000")
 	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
+
 	result = dict()
 	for timestamp in timestamps:
-		key = timestamp[2] * sec_per_day + monday + sec_per_hour * row[0] + sec_per_minute * row[1]
-		result[key] = 1
+		print timestamp[2]
+		key = timestamp[2] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * timestamp[1]
+		if key in result:
+			result[key] += 1
+		else:
+			result[key] = 1
 	return Response(json.dumps(result))
 
 

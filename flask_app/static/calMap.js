@@ -7,7 +7,7 @@ $(function displayCalMap(){
 		domain: "day",
 		subdomain: "x_hour",
 		cellSize: 35,
-		data: "/static/calMapData.json",
+		data: "/convertDateFormat",
 		start: new Date(2000, 0, 3, 6),
 		browsing: true,
 		range: 7,
@@ -28,6 +28,3 @@ $(function displayCalMap(){
 	console.log("succeed");
 })
 
-
-
-//Hack: aggregate upcomming time stamps to 3 - 9 January 2000
