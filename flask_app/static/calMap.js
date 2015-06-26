@@ -2,6 +2,7 @@ var cal
 var highlighted = []
 
 $(function displayCalMap(){
+	// TODO: For testing implement dummy data
 	cal = new CalHeatMap();
 	cal.init({
 		weekStartonMonday: true,
@@ -24,12 +25,12 @@ $(function displayCalMap(){
 			width: 46,
 		},
 		onClick: function(date, count){
-			console.log(highlighted)
+			//console.log(highlighted)
 			var index = highlighted.map(Number).indexOf(+date)
-			console.log(index)
+			//console.log(index)
 			if(index != -1){
 				highlighted.splice(index,1)
-				console.log("delete cell")
+				//console.log("delete cell")
 			}else{
 
 				highlighted.push(date)
@@ -42,6 +43,6 @@ $(function displayCalMap(){
 		}
 
 	});
-	console.log(cal.data);
-	console.log("succeed");
+	//console.log(cal.data);
+	console.log("CalHeatMap generated!");
 })

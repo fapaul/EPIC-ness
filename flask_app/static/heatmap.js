@@ -9,7 +9,7 @@ $(function getMarker(){
 		for (point in data){
 			buildMarker(data[point])
 		}*//*
-		
+
 	});*/
 	google.maps.event.addDomListener(window, 'load', initializeHeatmap);
 });
@@ -38,37 +38,15 @@ function getMapEdges(Map) {
 //Todo: check for events bounds_changed, center_changed, zoom_changed, drag (and projection_changed)
 }
 
-/*SELECT TRIP.PICKUP_LAT AS LatC, TRIP.PICKUP_LONG AS LongC
-FROM NYCCAB.TRIP_DOUBLE AS TRIP
-WHERE TRIP.PICKUP_LAT <> 0
-AND TRIP.PICKUP_LONG <> 0
-ORDER BY TRIP.RATE DESC
-LIMIT 100*/
-function heatMap() {
-	// query = "SELECT TRIP.PICKUP_LAT AS LatC, TRIP.PICKUP_LONG AS LongC FROM NYCCAB.TRIP_DOUBLE AS TRIP WHERE TRIP.PICKUP_LAT <> 0 AND TRIP.PICKUP_LONG <> 0 ORDER BY TRIP.RATE DESC LIMIT 100"
-	years = ["2010", "2012"]
-	months = ["1", "2", "5", "12"];
-	weeks = ["1", "2"];
-	
-	$.ajax({
-		type: "POST",
-		url: "/heatmap",
-		data: {"years": years,
-			"months": months,
-			"weeks": weeks},
-		success: heatMapCallback
-	})
-}
-
 function heatMapCallback(heatmapData) {
 	heatmapData = JSON.parse(heatmapData)
 	for(var i = 0; i < heatmapData.length; i++) {
 		heatmapData[i] = new google.maps.LatLng(heatmapData[i]['lat'], heatmapData[i]['long'])
 	}
 	// console.log(heatmapData)
-	
+
 	heatmap.setMap(null)
-	
+
 	heatmap = new google.maps.visualization.HeatmapLayer({
 	  data: heatmapData
 	});

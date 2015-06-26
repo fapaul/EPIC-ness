@@ -1,0 +1,16 @@
+SELECT
+	week,
+	COUNT(*) as count
+FROM 
+	(
+		SELECT
+			ROUND(DAYOFMONTH(PICKUP_TIME) / 7, 0, ROUND_UP) as week
+		FROM
+			NYCCAB.FARE
+		WHERE
+			YEAR(PICKUP_TIME) in (2011) AND MONTH(PICKUP_TIME) in (1)
+	)
+ GROUP BY
+ 	week
+ ORDER BY
+ 	week

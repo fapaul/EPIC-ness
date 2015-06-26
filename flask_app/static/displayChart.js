@@ -1,14 +1,3 @@
-$(function barcharts() {
-	var yearData = [{"year": "'10", "average": "9"}, {"year": "'11", "average": "12"}, {"year": "'12", "average": "5"}, {"year": "'13", "average": "7"}]
-	displayBarChart(yearData, 'barchart-1')
-	
-	var monthData = [{"month": "1","average": "2"},{"month": "2","average": "3"},{"month": "3","average": "3"},{"month": "4","average": "6"},{"month": "5","average": "4"},{"month": "6","average": "5"},{"month": "7","average": "5"},{"month": "8","average": "8"},{"month": "9","average": "10"},{"month": "10","average": "5"},{"month": "11","average": "9"},{"month": "12","average": "7"}];
-	displayBarChart(monthData, 'barchart-2')
-	
-	var weekData = [{"week": "1","average": "4"},{"week": "2","average": "3"},{"week": "3","average": "1"},{"week": "4","average": "2"},{"week": "5","average": "1"}];
-	displayBarChart(weekData, 'barchart-3')
-})
-
 function displayBarChart(chartData, divName) {
 	var keys = Object.keys(chartData[0]), // First element determines the key names
 		name = keys[0],
@@ -17,7 +6,13 @@ function displayBarChart(chartData, divName) {
 		margin = {top: 20, right: 20, bottom: 30, left: 30},
 		width = div.style('width').substring(0, 3) - margin.left - margin.right, // Removing 'px' suffix
 		height = div.style('height').substring(0, 3) - margin.top - margin.bottom
-	
+
+	// Prepare chartData
+	for(var i = 0; i < chartData.length; i++) {
+		chartData[i]['clicked'] = false
+		chartData[i]['index'] = i
+	}
+
 	// Defines the Space for the x axis and the distance between the axis marks
 	var x = d3.scale.ordinal()
 		.rangeRoundBands([0, width], .1)
@@ -33,18 +28,20 @@ function displayBarChart(chartData, divName) {
 	var yAxis = d3.svg.axis()
 		.scale(y)
 		.orient('left')
-		.ticks(5, ''); // Only about 5 points at this axis and add a ''
+		.ticks(5, '') // Only about 5 points at this axis and add a ''
+		.tickFormat(''); // No text labels (to less space for big numbers)
 
 	// Create the svg element in the target container (considering the margin)
 	var svg = div.append('svg')
+		.attr('id', name+'SVG')
 		.attr('width', div.style('width'))
 		.attr('height', div.style('height'))
 	.append('g')
 		.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-	
+
 	// Define the mark title of x and y axis
-	x.domain(chartData.map(function(d) { return d[name]; }))
-	var yMax = d3.max(chartData, function(d) { return parseInt(d[value]); })
+	x.domain(chartData.map(function(d) { return shortenBarName(d[name]) }))
+	var yMax = d3.max(chartData, function(d) { return parseInt(d[value]) })
 	y.domain([0, yMax + 0.1 * yMax]) // Adding 10% to get more space to the top border
 
 	// Add x axis to the display
@@ -52,7 +49,7 @@ function displayBarChart(chartData, divName) {
 		.attr('class', 'x axis')
 		.attr('transform', 'translate(0,' + height + ')')
 		.call(xAxis)
-	
+
 	// Add y axis to the display (including a title)
 	svg.append('g')
 		.attr('class', 'y axis')
@@ -69,30 +66,36 @@ function displayBarChart(chartData, divName) {
 		.attr('class', 'd3-tip')
 		.offset([-10, 0])
 		.html(function(d) {
-			return d[value];
+			return intToReadableString(d[value]);
 		})
-	
+
 	svg.call(tip);
-			
+
 	// Show the chart data as a bar chart (draws a rect object for each entry)
+	var i = 0
 	svg.selectAll('.bar')
 		.data(chartData)
 	.enter().append('rect')
 		.attr('class', 'bar')
-		.attr('x', function(d) { return x(d[name])})
+		.attr('class', name+'Bar')
+		.attr('id', function(d) { i += 1; return i - 1}) // Enumerate bars
+			// Same name translation as in the beginning (otherwise format error)
+		.attr('x', function(d) { return x(shortenBarName(d[name]))})
 		.attr('width', x.rangeBand())
 		.attr('y', function(d) { return y(d[value])})
 		.attr('height', function(d) { return height - y(d[value]) }) // 50 px distance to top border
 		.attr("fill", "#88F") // fill with specific color
 		.on("click", function(d) {
-			if (!d['clicked']) {
-				d['clicked'] = true;
-				d3.select(this).classed("highlight", true);
-				updateObserver(d);
-			} else {
-				d['clicked'] = false;
-				d3.select(this).classed("highlight", false);
-				updateObserver(d);
+			if (requestLock()) {
+				if (!d['clicked']) {
+					d['clicked'] = true;
+					d3.select(this).classed("highlight", true);
+					updateObserver(d);
+				} else {
+					d['clicked'] = false;
+					d3.select(this).classed("highlight", false);
+					updateObserver(d);
+				}
 			}
 		})
 		.on("mouseover", function(d) {
@@ -109,6 +112,22 @@ function displayBarChart(chartData, divName) {
 		});
 }
 
+function intToReadableString(intVal) {
+	var val = intVal+""
+	var initialLength = val.length
+	// Add points marking steps of thousands (e.g. "12.345.678")
+	for(j = 1; j < initialLength; j++) {
+		if (j % 3 == 0) {
+			val = val.substring(0, initialLength - j) + '.' + val.substring(initialLength -j, val.length)
+		}
+	}
+	return val
+}
+
+function shortenBarName(name) {
+	return (name.length > 3) ? "'"+name.substring(2, 4) : name;
+}
+
 function displayDonutChart(chartData, divName) {
 	var keys = Object.keys(chartData[0]),
 		name = keys[0],
@@ -121,7 +140,7 @@ function displayDonutChart(chartData, divName) {
 	for (var rowNum in chartData) {
 		pieData.push({label: chartData[rowNum][name], value: chartData[rowNum][value]})
 	}
-	
+
 	// Generate pie chart -> For more information: http://d3pie.org/#examples
 	var pie = new d3pie(divName, {
 		/*header: {
