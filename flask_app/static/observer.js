@@ -209,9 +209,11 @@ function updateHeatmap() {
 	$.ajax({
 		type: "POST",
 		url: "/heatmap",
-		data: {"years": years,
+		data: {
+			"years": years,
 			"months": months,
-			"weeks": weeks},
+			"weeks": weeks
+		},
 		success: heatMapCallback
 	})
 }

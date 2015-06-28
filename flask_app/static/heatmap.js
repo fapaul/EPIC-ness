@@ -1,16 +1,5 @@
-var map;
-
-
 $(function getMarker(){
-	/*$.getJSON($SCRIPT_ROOT + "/showMarker", function(data){
-		console.log(data[0]);
-		//initialize(data[0]);
-		/*google.maps.event.addDomListener(window, 'load', initialize);
-		for (point in data){
-			buildMarker(data[point])
-		}*//*
 
-	});*/
 	google.maps.event.addDomListener(window, 'load', initializeHeatmap);
 });
 
@@ -24,26 +13,17 @@ function initializeHeatmap() {
 	  mapTypeId: google.maps.MapTypeId.SATELLITE
 	})
 
-	console.log("google map initialized");
+	google.maps.event.addListener(googlemap, 'idle', adjustData)
+
 	heatMapDummy();
 }
 
-function getMapEdges(Map) {
-	var bottomLeft = Map.getBounds().getSouthWest();
-	var topRight = Map.getBounds().getNorthEast();
-	var center = Map.getCenter();
-	var zoom = Map.Zoom();
-
-	return Map.getBounds();
-//Todo: check for events bounds_changed, center_changed, zoom_changed, drag (and projection_changed)
-}
 
 function heatMapCallback(heatmapData) {
 	heatmapData = JSON.parse(heatmapData)
 	for(var i = 0; i < heatmapData.length; i++) {
 		heatmapData[i] = new google.maps.LatLng(heatmapData[i]['lat'], heatmapData[i]['long'])
 	}
-	// console.log(heatmapData)
 
 	heatmap.setMap(null)
 
@@ -161,4 +141,21 @@ function heatMapDummy(){
 	  data: heatmapData
 	});
 	heatmap.setMap(googlemap);
+}
+
+function adjustData(){
+	var southWestBound = googlemap.getBounds().getSouthWest()
+	var northEastBound = googlemap.getBounds().getNorthEast()
+	var southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
+	var northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
+	console.log(southWest)
+	console.log(northEast)
+	$.ajax({
+		type: "POST",
+		url: "/getBoundsData",
+		data: {
+			"SouthWest": southWest, 
+			"NorthEast": northEast
+		},
+	})
 }

@@ -345,5 +345,11 @@ def queryWeeks(months, years):
 
 	return weeksCount
 
+@app.route('/getBoundsData', methods=['POST'])
+def getBoundsData():
+	south_west = request.form.get('SouthWest')
+	north_east = request.form.get("NorthEast")
+	return Response(json.dumps(south_west), status = 200)
+
 if __name__ == '__main__':
 	app.run()
