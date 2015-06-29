@@ -150,6 +150,23 @@ function adjustData(){
 	$.ajax({
 		type: "POST",
 		url: "/getBoundsData",
-		data: {"SouthWest": southWest, "NorthEast": northEast}
+		data: {"SouthWest": southWest, "NorthEast": northEast},
+		success: adoptHeatMap
 	})
+	
+}
+
+function adoptHeatMap(data){
+	data = JSON.parse(data)
+	console.log(data)
+	heatLayer = []
+	for(var i = 0; i < data.length; i++){
+		var current = data[i]
+		heatLayer.push(new google.maps.LatLng(current.lat, current.long))
+	}
+	heatmap.setMap(null)
+	heatmap = new google.maps.visualization.HeatmapLayer({
+		data: heatLayer
+	})
+	heatmap.setMap(googlemap)
 }
