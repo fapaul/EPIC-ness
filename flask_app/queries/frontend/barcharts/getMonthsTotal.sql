@@ -1,0 +1,8 @@
+SELECT
+	months, AVG(TOTAL) as Average_Total
+FROM
+	NYCCAB.FARE
+WHERE
+	MONTH(PICKUP_TIME) in ? and YEAR(PICKUP_TIME) in ?
+GROUP BY
+	MONTH(PICKUP_TIME) as months
