@@ -25,12 +25,9 @@ $(function displayCalMap(){
 			width: 46,
 		},
 		onClick: function(date, count){
-			//console.log(highlighted)
 			var index = highlighted.map(Number).indexOf(+date)
-			//console.log(index)
 			if(index != -1){
 				highlighted.splice(index,1)
-				//console.log("delete cell")
 			}else{
 
 				highlighted.push(date)
@@ -43,6 +40,4 @@ $(function displayCalMap(){
 		}
 
 	});
-	//console.log(cal.data);
-	console.log("CalHeatMap generated!");
 })
