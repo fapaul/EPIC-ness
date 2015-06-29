@@ -1,7 +1,10 @@
 var cal
 var highlighted = []
 
-$(function displayCalMap(){
+$(displayCalMap(null,null))
+
+
+function displayCalMap(SW,NE){
 	// TODO: For testing implement dummy data
 	cal = new CalHeatMap();
 	cal.init({
@@ -9,7 +12,7 @@ $(function displayCalMap(){
 		domain: "day",
 		subdomain: "x_hour",
 		cellSize: 35,
-		data: "/convertDateFormat",
+		data: "/convertDateFormat?southWest=" + SW + "&northEast=" + NE,
 		start: new Date(2000, 0, 3, 6),
 		browsing: true,
 		range: 7,
@@ -40,4 +43,15 @@ $(function displayCalMap(){
 		}
 
 	});
-})
+}
+
+function changeData(SW, NE){
+	SW = 2
+	var changedData
+	$.ajax({
+		url: "/convertDateFormat?southWest=" + SW + "&northEast=" + NE,
+	})
+	.done(function(data){changeData = JSON.parse(data)})
+	cal.update(changedData)
+	cal.options.data = changedData
+}

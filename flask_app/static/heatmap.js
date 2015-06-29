@@ -147,18 +147,18 @@ function adjustData(){
 	var northEastBound = googlemap.getBounds().getNorthEast()
 	var southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
 	var northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
+	updateCalMap(southWest, northEast)
 	$.ajax({
 		type: "POST",
 		url: "/getBoundsData",
 		data: {"SouthWest": southWest, "NorthEast": northEast},
-		success: adoptHeatMap
+		success: adaptHeatMap
 	})
 	
 }
 
-function adoptHeatMap(data){
+function adaptHeatMap(data){
 	data = JSON.parse(data)
-	console.log(data)
 	heatLayer = []
 	for(var i = 0; i < data.length; i++){
 		var current = data[i]

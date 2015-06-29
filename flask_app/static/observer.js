@@ -10,7 +10,7 @@ function updateObserver(barData) {
 	// 2.) Update Heatmap
 	updateHeatmap();
 	// 3.) Update Calmap
-	updateCalmap();
+	//updateCalmap();
 }
 
 var locked = false
@@ -218,7 +218,9 @@ function updateHeatmap() {
 	})
 }
 
-function updateCalmap() {
+function updateCalMap(southWest, northEast) {
 	// TODO(2): Implement update function and dummy data for testing
 	// (Query needs too much time -> can't reload webpage quickly)
+	changeData(southWest, northEast)
+
 }
