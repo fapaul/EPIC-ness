@@ -8,7 +8,7 @@ $(function displayCalMap(){
 		weekStartonMonday: true,
 		domain: "day",
 		subdomain: "x_hour",
-		cellSize: 35,
+		cellSize: 30,
 		data: "/convertDateFormat",
 		start: new Date(2000, 0, 3, 6),
 		browsing: true,
@@ -20,6 +20,8 @@ $(function displayCalMap(){
 		domainLabelFormat: "%A",
 		domainGutter: 10,
 		legendHorizontalPosition: "center",
+		legend: [50, 100, 1000, 5000, 10000, 11000],
+		considerMissingDataAsZero: true,
 		label: {
 			position: "left",
 			width: 46,

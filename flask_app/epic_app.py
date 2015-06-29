@@ -160,14 +160,15 @@ def loadHeatMapCal():
 
 @app.route('/convertDateFormat')
 def convertHeatMapData():
+	"""
 	monday = 946854000
 	sec_per_day = 86400
 	sec_per_minute = 60
 	sec_per_hour = 3600
 	cur = g.db.cursor()
-	cur.execute("SELECT HOUR(FARE.PICKUP_TIME), MINUTE(FARE.PICKUP_TIME), weekday(FARE.PICKUP_TIME) FROM NYCCAB.FARE LIMIT 700000")
+	query = open('./queries/frontend/calmap/getCalMapData.sql').read()
+	cur.execute(query)
 	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
-
 	result = dict()
 	for timestamp in timestamps:
 		key = timestamp[2] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * timestamp[1]
@@ -175,7 +176,9 @@ def convertHeatMapData():
 			result[key] += 1
 		else:
 			result[key] = 1
-	return Response(json.dumps(result))
+	"""
+	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
+	return Response(resultAsJson)
 
 # Contains counts for years, months and weeks
 @app.route('/getYearsCount', methods=['GET', 'POST'])
