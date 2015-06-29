@@ -147,14 +147,9 @@ function adjustData(){
 	var northEastBound = googlemap.getBounds().getNorthEast()
 	var southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
 	var northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
-	console.log(southWest)
-	console.log(northEast)
 	$.ajax({
 		type: "POST",
 		url: "/getBoundsData",
-		data: {
-			"SouthWest": southWest,
-			"NorthEast": northEast
-		},
+		data: {"SouthWest": southWest, "NorthEast": northEast}
 	})
 }

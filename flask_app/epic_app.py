@@ -71,7 +71,7 @@ def heatmap():
 	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
 
 
-@app.route('/')
+@app.route('/showEntries')
 def show_entries():
 	entries = 1
 	return render_template('show_entries.html', entries=entries)
@@ -112,6 +112,8 @@ def pieChart(chartName):
 		chartName = 'SumTotalPerMonth' # Define default example chart
 	return render_template('pieChart.html', chartName = chartName)
 
+
+@app.route('/')
 @app.route('/frontend')
 def frontend():
 	return render_template('frontend.html')
@@ -214,11 +216,18 @@ def responseWeeks():
 	# Exported because queryWeeks is also used by queryMonths
 	return Response(json.dumps(queryWeeks(months, years)))
 
-@app.route('/getBoundsData', methods=['POST'])
+@app.route('/getBoundsData', methods=['GET', 'POST'])
 def getBoundsData():
-	south_west = request.form.get('SouthWest')
-	north_east = request.form.get("NorthEast")
-	return Response(json.dumps(south_west), status = 200)
+	requestObj = request.args if (request.method == 'GET') else request.form
+	south_west = {'lat': requestObj.get('SouthWest[lat]'),
+				'long': requestObj.get('SouthWest[long]')}
+	north_east = {'lat': requestObj.get('NorthEast[lat]'),
+ 				'long': requestObj.get('NorthEast[long]')}
+
+	print(south_west)
+	print(north_east)
+	# TODO: Call updateCalmap(southWest, northWest)
+	return Response('Thanks', status = 200)
 
 if __name__ == '__main__':
 	app.run()
