@@ -42,6 +42,7 @@ function displayCalMap(SW,NE){
 			}else{
 				cal.highlight(highlighted)
 			}
+			updateHeatmap(highlighted)
 		}
 
 	});

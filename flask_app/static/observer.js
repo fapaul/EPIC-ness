@@ -1,4 +1,23 @@
 
+// Dummy data (overwritten by hardcoded data in backend by reloading)
+var yearData = [{"year": "2010", "value": "9"}, {"year": "2011", "value": "12"},
+			{"year": "2012", "value": "5"}, {"year": "2013", "value": "7"}],
+	monthData = [{"month": "1","value": "2"},{"month": "2","value": "3"},
+			{"month": "3","value": "3"},{"month": "4","value": "6"},
+			{"month": "5","value": "4"},{"month": "6","value": "5"},
+			{"month": "7","value": "5"},{"month": "8","value": "8"},
+			{"month": "9","value": "10"},{"month": "10","value": "5"},
+			{"month": "11","value": "9"},{"month": "12","value": "7"}],
+	weekData = [{"week": "1","value": "4"},{"week": "2","value": "3"},
+		{"week": "3","value": "1"},{"week": "4","value": "2"},{"week": "5","value": "1"}]
+
+var selectedYears = [1],
+		selectedMonths = [0, 1],
+		selectedWeeks = [1, 4]
+
+var northEast,
+	southWest;
+
 // --- OBSERVER ---------------------------------------------- //
 
 // TODO: Wait after input for 2 seconds before loading data
@@ -10,9 +29,8 @@ function updateObserver(barData) {
 	// 2.) Update Heatmap
 	updateHeatmap();
 	// 3.) Update Calmap
-	//updateCalmap();
+	updateCalmap();
 }
-
 var locked = false
 function requestLock() {
 	if (locked) {
@@ -35,21 +53,6 @@ function releaseLock() {
 }
 
 // --- BARCHARTS --------------------------------------------- //
-// Dummy data (overwritten by hardcoded data in backend by reloading)
-var yearData = [{"year": "2010", "value": "9"}, {"year": "2011", "value": "12"},
-			{"year": "2012", "value": "5"}, {"year": "2013", "value": "7"}],
-	monthData = [{"month": "1","value": "2"},{"month": "2","value": "3"},
-			{"month": "3","value": "3"},{"month": "4","value": "6"},
-			{"month": "5","value": "4"},{"month": "6","value": "5"},
-			{"month": "7","value": "5"},{"month": "8","value": "8"},
-			{"month": "9","value": "10"},{"month": "10","value": "5"},
-			{"month": "11","value": "9"},{"month": "12","value": "7"}],
-	weekData = [{"week": "1","value": "4"},{"week": "2","value": "3"},
-		{"week": "3","value": "1"},{"week": "4","value": "2"},{"week": "5","value": "1"}]
-
-	var selectedYears = [1],
-		selectedMonths = [0, 1],
-		selectedWeeks = [1, 4]
 // Called when document is loaded -> Generate bar charts with dummy data
 $(function loadData() {
 	years = selectedYears.map(function(index){return yearData[index]['year']})
@@ -200,8 +203,6 @@ function receiveWeeksData(newWeeksData) {
 
 // query = "SELECT TRIP.PICKUP_LAT AS LatC, TRIP.PICKUP_LONG AS LongC FROM NYCCAB.TRIP_DOUBLE AS TRIP WHERE TRIP.PICKUP_LAT <> 0 AND TRIP.PICKUP_LONG <> 0 ORDER BY TRIP.RATE DESC LIMIT 100"
 function updateHeatmap() {
-	// TODO(3): Use real data
-	// TODO(3): Implement using real data
 	years = selectedYears.map(function(index){return yearData['index']})
 	months = selectedMonths.map(function(index){return monthData['index']})
 	weeks = selectedWeeks.map(function(index){return weekData['index']})
@@ -218,9 +219,7 @@ function updateHeatmap() {
 	})
 }
 
-function updateCalMap(southWest, northEast) {
-	// TODO(2): Implement update function and dummy data for testing
-	// (Query needs too much time -> can't reload webpage quickly)
+function updateCalMap() {
+	// TODO: Add Years, Months, Weeks
 	changeData(southWest, northEast)
-
 }

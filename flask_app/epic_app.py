@@ -38,13 +38,6 @@ def teardown_request(exception):
 	if db is not None:
 		db.close()
 
-@app.route('/showMarker')
-def showMarker():
-	cur = g.db.cursor()
-	cur.execute("SELECT TRIP_DOUBLE.PICKUP_LAT as lati, TRIP_DOUBLE.PICKUP_LONG as long  FROM NYCCAB.TRIP_DOUBLE WHERE (TRIP_DOUBLE.PICKUP_lat <> 0 AND TRIP_DOUBLE.PICKUP_LONG <> 0) LIMIT 10")
-	entries = json.dumps([dict(lat=row[0], long=row[1]) for row in cur.fetchall()])
-	return Response(entries)
-
 @app.route('/heatmap', methods=['GET', 'POST'])
 def heatmap():
 	if request.method == 'POST':
@@ -71,92 +64,10 @@ def heatmap():
 	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
 
 
-@app.route('/showEntries')
-def show_entries():
-	entries = 1
-	return render_template('show_entries.html', entries=entries)
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-	error = None
-	if request.method == 'POST':
-		if request.form['username'] != app.config['USERNAME']:
-			error = 'Invalid username'
-		elif request.form['password'] != app.config['PASSWORD']:
-			error = 'Invalid password'
-		else:
-			session['logged_in'] = True
-			flash('You were logged in')
-			return redirect(url_for('show_entries'))
-	return render_template('login.html', error=error)
-
-@app.route('/logout')
-def logout():
-	session.pop('logged_in', None)
-	flash('You were logged out')
-	return redirect(url_for('show_entries'))
-
-@app.route('/chooseChart')
-def chooseChart():
-	return render_template('chooseChart.html')
-
-@app.route('/barChart/<chartName>')
-def barChart(chartName):
-	if (chartName == None):
-		chartName = 'SumTotalPerMonth' # Define default example chart
-	return render_template('barChart.html', chartName = chartName)
-
-@app.route('/pieChart/<chartName>')
-def pieChart(chartName):
-	if (chartName == None):
-		chartName = 'SumTotalPerMonth' # Define default example chart
-	return render_template('pieChart.html', chartName = chartName)
-
-
 @app.route('/')
 @app.route('/frontend')
 def frontend():
 	return render_template('frontend.html')
-
-# Called by AJAX
-@app.route('/loadChart/<chartName>')
-def loadBarChart(chartName):
-	cur = g.db.cursor()
-	query = open('./queries/' + chartName + '.sql').read()
-	cur.execute(query)
-	leftKey = cur.description[0][0].lower()
-	rightKey = cur.description[1][0].lower()
-	result = cur.fetchall()
-
-	# FIXME: Dirty hotfix (keys are switched by list comprehension)
-	if chartName == "CountUsesPerPaymentType":
-		temp = leftKey
-		leftKey = rightKey
-		rightKey = temp
-
-	# FIXME: Dirty hotfix
-	if (chartName == "CountDriversPerVendor"):
-		print "Query doesn't work with pyhdb connector on windows for any reason -> datas are manually collected (HOTFIX)"
-		chartContent = json.dumps([{"unternehmen": "CMT", "fahreranzahl": 347979848}, {"unternehmen": "VTS", "fahreranzahl": 345592304}, {"unternehmen": "DDS", "fahreranzahl": 4050283}])
-	elif chartName == "SumTotalPerVendorInApril2010":
-		print "Query doesn't work with pyhdb connector on windows for any reason -> datas are manually collected (HOTFIX)"
-		chartContent = json.dumps([{"unternehmen": "CMT", "umsatz": 6477535}, {"unternehmen": "DDS", "umsatz": 846870}, {"unternehmen": "VTS", "umsatz": 7268059}])
-	else:
-		chartContent = json.dumps([{leftKey:row[0], rightKey:row[1]} for row in result if row[0] != ''])
-
-	# Determine if the current bug occurred in this query
-	countEmptyRows = 0
-	for row in result:
-		if row[0] == '':
-			countEmptyRows = countEmptyRows + 1
-	if countEmptyRows > 0:
-		print 'WARNING: '+str(countEmptyRows)+' empty row'+('s' if countEmptyRows > 1 else '')+' discovered for query "'+chartName+'" !!!'
-	return chartContent
-
-
-@app.route('/heatMapCal')
-def loadHeatMapCal():
-	return render_template('calMap.html')
 
 @app.route('/convertDateFormat')
 def convertHeatMapData():
@@ -236,6 +147,7 @@ def getBoundsData():
 				'long': requestObj.get('SouthWest[long]')}
 	north_east = {'lat': requestObj.get('NorthEast[lat]'),
  				'long': requestObj.get('NorthEast[long]')}
+	# TODO: Heatmap Data by Bounds and Date
  	data = [
  		dict(lat=40.645050048828125, long=-73.79256439208984),
 		dict(lat=40.751739501953125, long=-73.89812469482422),
