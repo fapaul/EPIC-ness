@@ -160,14 +160,24 @@ def loadHeatMapCal():
 
 @app.route('/convertDateFormat')
 def convertHeatMapData():
+	#TODO: write query for calmap with sw and ne'
+	if request.args.get('southWest') == 2:
+		print('CalMap changed')
+		return Response(status='200')
+	else:
+		resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
+		return Response(resultAsJson)
+
 	"""
 	monday = 946854000
 	sec_per_day = 86400
 	sec_per_minute = 60
 	sec_per_hour = 3600
 	cur = g.db.cursor()
+
 	query = open('./queries/frontend/calmap/getCalMapData.sql').read()
 	cur.execute(query)
+
 	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
 	result = dict()
 	for timestamp in timestamps:
@@ -176,9 +186,8 @@ def convertHeatMapData():
 			result[key] += 1
 		else:
 			result[key] = 1
+	return Response(json.dumps(result))
 	"""
-	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
-	return Response(resultAsJson)
 
 # Contains counts for years, months and weeks
 @app.route('/getYearsCount', methods=['GET', 'POST'])
@@ -226,11 +235,15 @@ def getBoundsData():
 				'long': requestObj.get('SouthWest[long]')}
 	north_east = {'lat': requestObj.get('NorthEast[lat]'),
  				'long': requestObj.get('NorthEast[long]')}
+ 	data = [
+ 		dict(lat=40.645050048828125, long=-73.79256439208984),
+		dict(lat=40.751739501953125, long=-73.89812469482422),
+		dict(lat=40.78850555419922, long=-73.94905853271484),
+	 	dict(lat=40.72579574584961, long=-73.9828872680664),
+		dict(lat=40.72705078125, long=-73.99354553222656),
+	 	dict(lat=40.74961853027344, long=-73.99532318115234)]
 
-	print(south_west)
-	print(north_east)
-	# TODO: Call updateCalmap(southWest, northWest)
-	return Response('Thanks', status = 200)
+	return Response(json.dumps(data))
 
 if __name__ == '__main__':
 	app.run()

@@ -147,9 +147,26 @@ function adjustData(){
 	var northEastBound = googlemap.getBounds().getNorthEast()
 	var southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
 	var northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
+	updateCalMap(southWest, northEast)
 	$.ajax({
 		type: "POST",
 		url: "/getBoundsData",
-		data: {"SouthWest": southWest, "NorthEast": northEast}
+		data: {"SouthWest": southWest, "NorthEast": northEast},
+		success: adaptHeatMap
 	})
+	
+}
+
+function adaptHeatMap(data){
+	data = JSON.parse(data)
+	heatLayer = []
+	for(var i = 0; i < data.length; i++){
+		var current = data[i]
+		heatLayer.push(new google.maps.LatLng(current.lat, current.long))
+	}
+	heatmap.setMap(null)
+	heatmap = new google.maps.visualization.HeatmapLayer({
+		data: heatLayer
+	})
+	heatmap.setMap(googlemap)
 }
