@@ -161,12 +161,13 @@ def loadHeatMapCal():
 @app.route('/convertDateFormat')
 def convertHeatMapData():
 	#TODO: write query for calmap with sw and ne'
+	"""
 	if request.args.get('southWest') == 2:
 		print('CalMap changed')
 		return Response(status='200')
-	else:
-		resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
-		return Response(resultAsJson)
+	"""
+	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
+	return Response(resultAsJson)
 
 	"""
 	monday = 946854000

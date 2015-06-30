@@ -49,11 +49,12 @@ function displayCalMap(SW,NE){
 
 function changeData(SW, NE){
 	SW = 2
-	var changedData
 	$.ajax({
 		url: "/convertDateFormat?southWest=" + SW + "&northEast=" + NE,
 	})
-	.done(function(data){changeData = JSON.parse(data)})
-	cal.update(changedData)
-	cal.options.data = changedData
+	.done(function(data){
+		var changedData = JSON.parse(data)
+		cal.update(changedData)
+		cal.options.data = changedData
+	})
 }
