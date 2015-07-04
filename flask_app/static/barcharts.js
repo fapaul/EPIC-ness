@@ -1,6 +1,6 @@
 function loadBarchartsData() {
 	years = selectedYears.map(function(index){return yearData[index]['year']})
-	months = selectedMonths.map(function(index){return monthData[index]['month']})
+	months = selectedMonths.map(function(index){return (index+1)+""})
 	$.ajax({
 		type: "POST",
 		url: "/getYearsCount",
@@ -18,14 +18,14 @@ function receiveData(data) {
 	yearData = []
 	monthData = []
 	weekData = []
-	for(var i = 0; i < yearData.length; i++) {
-		yearData.push({"month": (2010+i)+"", "value": newYearsData[i]+""})
+	for(var i = 0; i < newYearsData.length; i++) {
+		yearData.push({"year": (2010+i)+"", "value": newYearsData[i]+""})
 	}
-	for(var i = 0; i < monthData.length; i++) {
+	for(var i = 0; i < newMonthsData.length; i++) {
 		monthData.push({"month": (1+i)+"", "value": newMonthsData[i]+""})
 	}
-	for(var i = 0; i < weekData.length; i++) {
-		weekData.push({"month": (1+i)+"", "value": newWeeksData[i]+""})
+	for(var i = 0; i < newWeeksData.length; i++) {
+		weekData.push({"week": (1+i)+"", "value": newWeeksData[i]+""})
 	}
 
 	displayBarChart(yearData, 'barchart-1')

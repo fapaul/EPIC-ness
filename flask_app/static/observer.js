@@ -1,7 +1,7 @@
 
-var yearData,
-	monthData,
-	weekData
+var yearData = [{'year': '2010'}, {'year': '2011'}, {'year': '2012'}, {'year': '2013'}],
+	monthData = [{'month': 1}],
+	weekData = [{'week': 1}]
 
 var selectedYears = [1],
 		selectedMonths = [0, 1],
@@ -38,8 +38,8 @@ function changeBarchartSelection(barData) {
 	handleNewBarElement(barData, name)
 	// Update Barcharts (abhängig vom angeklickten Diagramm)
 	updateBarCharts(name)
-	updateHeatmap()
-	updateCalmap()
+	updateHeatMap()
+	updateCalMap()
 }
 
 function setHeatmapBounds(northEastBound, southWestBound) {
@@ -90,7 +90,7 @@ function updateBarCharts(name) {
 	}
 }
 
-function updateHeatmap() {
+function updateHeatMap() {
 	years = selectedYears.map(function(index){return yearData['index']})
 	months = selectedMonths.map(function(index){return monthData['index']})
 	weeks = selectedWeeks.map(function(index){return weekData['index']})
@@ -100,7 +100,7 @@ function updateHeatmap() {
 
 	$.ajax({
 		type: "POST",
-		url: "/heatmap",
+		url: "/getHeatMapData",
 		data: {
 			"years": years,
 			"months": months,
@@ -123,7 +123,7 @@ function updateCalMap() {
 
 	$.ajax({
 		type: "POST",
-		url: "/getCalmapFata",
+		url: "/getCalMapData",
 		data: {
 			"years": years,
 			"months": months,
@@ -133,7 +133,5 @@ function updateCalMap() {
 			"NorthEast": northEast
 		},
 		success: calmapCallback
-		"?southWest=" + SW + "&northEast=" + NE,
 	})
-	.done(function)
 }

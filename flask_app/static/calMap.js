@@ -39,12 +39,17 @@ function displayCalMap(){
 			}
 			setCalmapSelection(highlighted)
 		}
-
 	});
 }
 
+var i = 0
 function calmapCallback(calmapData) {
 	var changedData = JSON.parse(calmapData)
+	i++
+	if (i % 2 == 0) {
+		changedData[946863840] += 5000
+		changedData[946874520] += 5000
+	}
 	cal.update(changedData)
 	cal.options.data = changedData
 }

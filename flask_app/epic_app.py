@@ -121,7 +121,7 @@ def getCalmapData():
 	return Response(json.dumps(result))
 	"""
 
-@app.route('/getHeatmapData', methods=['GET', 'POST'])
+@app.route('/getHeatMapData', methods=['GET', 'POST'])
 def getHeatmapData():
 	requestObj = request.args if (request.method == 'GET') else request.form
 	years = requestObj.getlist('years[]');

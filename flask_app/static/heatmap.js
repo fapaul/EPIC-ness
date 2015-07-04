@@ -24,7 +24,7 @@ function heatMapCallback(data){
 		var current = data[i]
 		heatLayer.push(new google.maps.LatLng(current.lat, current.long))
 	}
-	heatmap.setMap(null)
+	if (heatmap) heatmap.setMap(null)
 	heatmap = new google.maps.visualization.HeatmapLayer({
 		data: heatLayer
 	})
