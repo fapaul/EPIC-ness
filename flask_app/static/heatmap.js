@@ -15,7 +15,7 @@ function initializeHeatmap() {
 
 	google.maps.event.addListener(googlemap, 'idle', adjustData)
 
-	heatMapDummy(); // TODO: Durch Backend implementierung ersetzen
+	updateObserver() // TODO: Durch Backend implementierung ersetzen
 }
 
 
@@ -25,12 +25,30 @@ function heatMapCallback(heatmapData) {
 		heatmapData[i] = new google.maps.LatLng(heatmapData[i]['lat'], heatmapData[i]['long'])
 	}
 
-	heatmap.setMap(null)
+	
 
 	heatmap = new google.maps.visualization.HeatmapLayer({
 	  data: heatmapData
 	});
+	heatmap.setMap(null)
 	heatmap.setMap(googlemap);
+}
+
+function adjustTimeData(){
+
+	years = selectedYears.map(function(index){return yearData['index']})
+	months = selectedMonths.map(function(index){return monthData['index']})
+	weeks = selectedWeeks.map(function(index){return weekData['index']})
+	$.ajax({
+		type: "POST",
+		url: "/heatmap",
+		data: {
+			"years": years,
+			"months": months,
+			"weeks": weeks
+		},
+		success: heatMapCallback
+	})
 }
 
 function adjustData(){
@@ -38,7 +56,7 @@ function adjustData(){
 	var northEastBound = googlemap.getBounds().getNorthEast()
 	southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
 	northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
-	updateCalMap()
+	updateObserver()
 	$.ajax({
 		type: "POST",
 		url: "/getBoundsData",
@@ -61,3 +79,6 @@ function adaptHeatMap(data){
 	})
 	heatmap.setMap(googlemap)
 }
+
+
+

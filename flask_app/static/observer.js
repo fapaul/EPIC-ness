@@ -23,13 +23,13 @@ var northEast,
 // TODO: Wait after input for 2 seconds before loading data
 // TODO: Visualize locking (loading gif, gray layer, bottom note, etc.)
 // TODO: Write initObserver calling initHeatmap, initCalHeatmap, initBarcharts
-function updateObserver(barData) {
+function updateObserver() {
 	// 1.) Update Barcharts (abhängig vom angeklickten Diagramm)
-	updateBarCharts(barData);
+	//updateBarCharts(barData);
 	// 2.) Update Heatmap
 	updateHeatmap();
 	// 3.) Update Calmap
-	updateCalmap();
+	updateCalMap();
 }
 var locked = false
 function requestLock() {
@@ -203,20 +203,7 @@ function receiveWeeksData(newWeeksData) {
 
 // query = "SELECT TRIP.PICKUP_LAT AS LatC, TRIP.PICKUP_LONG AS LongC FROM NYCCAB.TRIP_DOUBLE AS TRIP WHERE TRIP.PICKUP_LAT <> 0 AND TRIP.PICKUP_LONG <> 0 ORDER BY TRIP.RATE DESC LIMIT 100"
 function updateHeatmap() {
-	years = selectedYears.map(function(index){return yearData['index']})
-	months = selectedMonths.map(function(index){return monthData['index']})
-	weeks = selectedWeeks.map(function(index){return weekData['index']})
-
-	$.ajax({
-		type: "POST",
-		url: "/heatmap",
-		data: {
-			"years": years,
-			"months": months,
-			"weeks": weeks
-		},
-		success: heatMapCallback
-	})
+	adjustTimeData()
 }
 
 function updateCalMap() {
