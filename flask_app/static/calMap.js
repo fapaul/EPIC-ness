@@ -1,18 +1,14 @@
 var cal
 var highlighted = []
 
-$(displayCalMap(null,null))
-
-
-function displayCalMap(SW,NE){
-	// TODO: For testing implement dummy data
+function displayCalMap(){
 	cal = new CalHeatMap();
 	cal.init({
 		weekStartonMonday: true,
 		domain: "day",
 		subdomain: "x_hour",
 		cellSize: 30,
-		data: "/convertDateFormat?southWest=" + SW + "&northEast=" + NE,
+		data: null, // "getCalmapData?SouthWest=" + SW + "&NorthEast=" + NE
 		start: new Date(2000, 0, 3, 6),
 		browsing: true,
 		range: 7,
@@ -34,7 +30,6 @@ function displayCalMap(SW,NE){
 			if(index != -1){
 				highlighted.splice(index,1)
 			}else{
-
 				highlighted.push(date)
 			}
 			if (highlighted.length == 0){
@@ -42,20 +37,14 @@ function displayCalMap(SW,NE){
 			}else{
 				cal.highlight(highlighted)
 			}
-			updateHeatmap(highlighted)
+			setCalmapSelection(highlighted)
 		}
 
 	});
 }
 
-function changeData(SW, NE){
-	SW = 2
-	$.ajax({
-		url: "/convertDateFormat?southWest=" + SW + "&northEast=" + NE,
-	})
-	.done(function(data){
-		var changedData = JSON.parse(data)
-		cal.update(changedData)
-		cal.options.data = changedData
-	})
+function calmapCallback(calmapData) {
+	var changedData = JSON.parse(calmapData)
+	cal.update(changedData)
+	cal.options.data = changedData
 }

@@ -1,54 +1,23 @@
-$(function getMarker(){
-	google.maps.event.addDomListener(window, 'load', initializeHeatmap);
-});
-
 var googlemap;
 var heatmap;
-function initializeHeatmap() {
-	var newYorkCity = new google.maps.LatLng(40.76103210449219, -73.97576141357422);
 
-	googlemap = new google.maps.Map(document.getElementById('map-canvas'), {
-	  center: newYorkCity,
-	  zoom: 11,
-	  mapTypeId: google.maps.MapTypeId.SATELLITE
-	})
+function initHeatmap() {
+	google.maps.event.addDomListener(window, 'load', function() {
+		var newYorkCity = new google.maps.LatLng(40.76103210449219, -73.97576141357422);
 
-	google.maps.event.addListener(googlemap, 'idle', adjustData)
+		googlemap = new google.maps.Map(document.getElementById('map-canvas'), {
+		  center: newYorkCity,
+		  zoom: 11,
+		  mapTypeId: google.maps.MapTypeId.SATELLITE
+		})
 
-	heatMapDummy(); // TODO: Durch Backend implementierung ersetzen
-}
+		google.maps.event.addListener(googlemap, 'idle', adjustBoundsData)
 
-
-function heatMapCallback(heatmapData) {
-	heatmapData = JSON.parse(heatmapData)
-	for(var i = 0; i < heatmapData.length; i++) {
-		heatmapData[i] = new google.maps.LatLng(heatmapData[i]['lat'], heatmapData[i]['long'])
-	}
-
-	heatmap.setMap(null)
-
-	heatmap = new google.maps.visualization.HeatmapLayer({
-	  data: heatmapData
+		// heatMapDummy(); // TODO: Durch Backend implementierung ersetzen
 	});
-	heatmap.setMap(googlemap);
 }
 
-function adjustData(){
-	var southWestBound = googlemap.getBounds().getSouthWest()
-	var northEastBound = googlemap.getBounds().getNorthEast()
-	southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
-	northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
-	updateCalMap()
-	$.ajax({
-		type: "POST",
-		url: "/getBoundsData",
-		data: {"SouthWest": southWest, "NorthEast": northEast},
-		success: adaptHeatMap
-	})
-
-}
-
-function adaptHeatMap(data){
+function heatMapCallback(data){
 	data = JSON.parse(data)
 	heatLayer = []
 	for(var i = 0; i < data.length; i++){
@@ -60,4 +29,10 @@ function adaptHeatMap(data){
 		data: heatLayer
 	})
 	heatmap.setMap(googlemap)
+}
+
+function adjustBoundsData(){
+	var southWestBound = googlemap.getBounds().getSouthWest()
+	var northEastBound = googlemap.getBounds().getNorthEast()
+	setHeatmapBounds(southWestBound, northEastBound)
 }

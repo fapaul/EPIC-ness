@@ -86,15 +86,17 @@ function displayBarChart(chartData, divName) {
 		.attr('height', function(d) { return height - y(d[value]) }) // 50 px distance to top border
 		.attr("fill", "#88F") // fill with specific color
 		.on("click", function(d) {
+			// TODO: Visualize locking (loading gif, gray layer, bottom note, etc.)
+			// TODO: Export this function to barcharts.js
 			if (requestLock()) {
 				if (!d['clicked']) {
 					d['clicked'] = true;
 					d3.select(this).classed("highlight", true);
-					updateObserver(d);
+					changeBarchartSelection(d);
 				} else {
 					d['clicked'] = false;
 					d3.select(this).classed("highlight", false);
-					updateObserver(d);
+					changeBarchartSelection(d);
 				}
 			}
 		})

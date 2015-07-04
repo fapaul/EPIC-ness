@@ -38,68 +38,12 @@ def teardown_request(exception):
 	if db is not None:
 		db.close()
 
-@app.route('/heatmap', methods=['GET', 'POST'])
-def heatmap():
-	if request.method == 'POST':
-		years = request.form.getlist('years[]');
-		months = request.form.getlist('months[]');
-		weeks = request.form.getlist('weeks[]');
-		# latitude/longitude von ursprung/extend
-
-
-	return json.dumps([
-		dict(lat=40.645320892333984, long=-73.7768783569336),
-		dict(lat=40.72430419921875, long=-73.9999008178711),
-		dict(lat=40.762916564941406, long=-73.99524688720703),
-		dict(lat=40.747989654541016, long=-73.97357940673828),
-		dict(lat=40.68174362182617, long=-73.98006439208984),
-		dict(lat=40.774208068847656, long=-73.87296295166016),
-		dict(lat=40.75990676879883, long=-73.99391174316406),
-		dict(lat=40.76718521118164, long=-73.99007415771484),
-		dict(lat=40.645050048828125, long=-73.79256439208984),
-		dict(lat=40.751739501953125, long=-73.89812469482422),
-		dict(lat=40.78850555419922, long=-73.94905853271484),
-	 	dict(lat=40.72579574584961, long=-73.9828872680664),
-		dict(lat=40.72705078125, long=-73.99354553222656),
-	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
-
+# --------- Frontend application -------------------------- #
 
 @app.route('/')
 @app.route('/frontend')
 def frontend():
 	return render_template('frontend.html')
-
-@app.route('/convertDateFormat')
-def convertHeatMapData():
-	#TODO: write query for calmap with sw and ne'
-	"""
-	if request.args.get('southWest') == 2:
-		print('CalMap changed')
-		return Response(status='200')
-	"""
-	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
-	return Response(resultAsJson)
-
-	"""
-	monday = 946854000
-	sec_per_day = 86400
-	sec_per_minute = 60
-	sec_per_hour = 3600
-	cur = g.db.cursor()
-
-	query = open('./queries/frontend/calmap/getCalMapData.sql').read()
-	cur.execute(query)
-
-	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
-	result = dict()
-	for timestamp in timestamps:
-		key = timestamp[2] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * timestamp[1]
-		if key in result:
-			result[key] += 1
-		else:
-			result[key] = 1
-	return Response(json.dumps(result))
-	"""
 
 # Contains counts for years, months and weeks
 @app.route('/getYearsCount', methods=['GET', 'POST'])
@@ -140,23 +84,72 @@ def responseWeeks():
 	# Exported because queryWeeks is also used by queryMonths
 	return Response(json.dumps(queryWeeks(months, years)))
 
-@app.route('/getBoundsData', methods=['GET', 'POST'])
-def getBoundsData():
+@app.route('/getCalMapData', methods=['GET', 'POST'])
+def getCalmapData():
 	requestObj = request.args if (request.method == 'GET') else request.form
+	years = requestObj.getlist('years[]');
+	months = requestObj.getlist('months[]');
+	weeks = requestObj.getlist('weeks[]');
+	dayHours = requestObj.getlist('dayHours[]');
 	south_west = {'lat': requestObj.get('SouthWest[lat]'),
 				'long': requestObj.get('SouthWest[long]')}
 	north_east = {'lat': requestObj.get('NorthEast[lat]'),
  				'long': requestObj.get('NorthEast[long]')}
-	# TODO: Heatmap Data by Bounds and Date
- 	data = [
- 		dict(lat=40.645050048828125, long=-73.79256439208984),
+
+	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
+	return Response(resultAsJson)
+
+	#TODO: write query for calmap with sw and ne
+	"""
+	monday = 946854000
+	sec_per_day = 86400
+	sec_per_minute = 60
+	sec_per_hour = 3600
+	cur = g.db.cursor()
+
+	query = open('./queries/frontend/calmap/getCalMapData.sql').read()
+	cur.execute(query)
+
+	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
+	result = dict()
+	for timestamp in timestamps:
+		key = timestamp[2] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * timestamp[1]
+		if key in result:
+			result[key] += 1
+		else:
+			result[key] = 1
+	return Response(json.dumps(result))
+	"""
+
+@app.route('/getHeatmapData', methods=['GET', 'POST'])
+def getHeatmapData():
+	requestObj = request.args if (request.method == 'GET') else request.form
+	years = requestObj.getlist('years[]');
+	months = requestObj.getlist('months[]');
+	weeks = requestObj.getlist('weeks[]');
+	dayHours = requestObj.getlist('dayHours[]');
+	south_west = {'lat': requestObj.get('SouthWest[lat]'),
+				'long': requestObj.get('SouthWest[long]')}
+	north_east = {'lat': requestObj.get('NorthEast[lat]'),
+ 				'long': requestObj.get('NorthEast[long]')}
+
+	# TODO: Query results including params
+
+	return json.dumps([
+		dict(lat=40.645320892333984, long=-73.7768783569336),
+		dict(lat=40.72430419921875, long=-73.9999008178711),
+		dict(lat=40.762916564941406, long=-73.99524688720703),
+		dict(lat=40.747989654541016, long=-73.97357940673828),
+		dict(lat=40.68174362182617, long=-73.98006439208984),
+		dict(lat=40.774208068847656, long=-73.87296295166016),
+		dict(lat=40.75990676879883, long=-73.99391174316406),
+		dict(lat=40.76718521118164, long=-73.99007415771484),
+		dict(lat=40.645050048828125, long=-73.79256439208984),
 		dict(lat=40.751739501953125, long=-73.89812469482422),
 		dict(lat=40.78850555419922, long=-73.94905853271484),
 	 	dict(lat=40.72579574584961, long=-73.9828872680664),
 		dict(lat=40.72705078125, long=-73.99354553222656),
-	 	dict(lat=40.74961853027344, long=-73.99532318115234)]
-
-	return Response(json.dumps(data))
+	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
 
 if __name__ == '__main__':
 	app.run()
