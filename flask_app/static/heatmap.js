@@ -1,8 +1,7 @@
 var googlemap;
 var heatmap;
-
+var boundsChanged = false;
 function initHeatmap() {
-	var boundsChanged = false;
 	google.maps.event.addDomListener(window, 'load', function() {
 		var newYorkCity = new google.maps.LatLng(40.76103210449219, -73.97576141357422);
 
@@ -12,7 +11,7 @@ function initHeatmap() {
 		  mapTypeId: google.maps.MapTypeId.SATELLITE,
 		  disableDefaultUI: true
 		})
-		google.maps.event.addListener(googlemap, 'bounds_changed', setBoundsChanged)
+		google.maps.event.addListener(googlemap, 'bounds_changed', function(){boundsChanged = true})
 		google.maps.event.addListener(googlemap, 'idle', adjustBoundsData)
 
 		// heatMapDummy(); // TODO: Durch Backend implementierung ersetzen
@@ -42,6 +41,3 @@ function adjustBoundsData(){
 	}
 }
 
-function setBoundsChanged(){
-	boundsChanged = true
-}
