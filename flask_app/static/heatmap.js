@@ -2,15 +2,17 @@ var googlemap;
 var heatmap;
 
 function initHeatmap() {
+	var boundsChanged = false;
 	google.maps.event.addDomListener(window, 'load', function() {
 		var newYorkCity = new google.maps.LatLng(40.76103210449219, -73.97576141357422);
 
 		googlemap = new google.maps.Map(document.getElementById('map-canvas'), {
 		  center: newYorkCity,
 		  zoom: 11,
-		  mapTypeId: google.maps.MapTypeId.SATELLITE
+		  mapTypeId: google.maps.MapTypeId.SATELLITE,
+		  disableDefaultUI: true
 		})
-
+		google.maps.event.addListener(googlemap, 'bounds_changed', setBoundsChanged)
 		google.maps.event.addListener(googlemap, 'idle', adjustBoundsData)
 
 		// heatMapDummy(); // TODO: Durch Backend implementierung ersetzen
@@ -32,7 +34,14 @@ function heatMapCallback(data){
 }
 
 function adjustBoundsData(){
-	var southWestBound = googlemap.getBounds().getSouthWest()
-	var northEastBound = googlemap.getBounds().getNorthEast()
-	setHeatmapBounds(southWestBound, northEastBound)
+	if (boundsChanged == true){
+		var southWestBound = googlemap.getBounds().getSouthWest()
+		var northEastBound = googlemap.getBounds().getNorthEast()
+		setHeatmapBounds(southWestBound, northEastBound)
+		boundsChanged = false
+	}
+}
+
+function setBoundsChanged(){
+	boundsChanged = true
 }
