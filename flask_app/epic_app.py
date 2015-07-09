@@ -127,14 +127,56 @@ def getHeatmapData():
 	years = requestObj.getlist('years[]');
 	months = requestObj.getlist('months[]');
 	weeks = requestObj.getlist('weeks[]');
-	dayHours = requestObj.getlist('dayHours[]');
-	south_west = {'lat': requestObj.get('SouthWest[lat]'),
-				'long': requestObj.get('SouthWest[long]')}
-	north_east = {'lat': requestObj.get('NorthEast[lat]'),
- 				'long': requestObj.get('NorthEast[long]')}
+	south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
+				'long': float(requestObj.get('SouthWest[long]'))}
+	north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
+ 				'long': float(requestObj.get('NorthEast[long]'))}
+	i = 0;
+	dayHours = [];
+	while(requestObj.getlist('dayHours['+str(i)+'][]')):
+		dayHours.append(requestObj.getlist('dayHours['+str(i)+'][]'))
+		i += 1
 
-	# TODO: Query results including params
+	latMax = south_west['lat']
+	latMin = north_east['lat']
+	if (south_west['lat'] < north_east['lat']):
+		latMax = north_east['lat']
+		latMin = south_west['lat']
+	longMax = south_west['long']
+	longMin = north_east['long']
+	if (south_west['long'] < north_east['long']):
+		longMax = north_east['long']
+		longMin = south_west['long']
 
+
+
+	# Query results including params
+	query = open('./queries/frontend/heatmap/getHeatMapPositions.sql').read()
+
+	query = query.replace('?', '('+(','.join(years))+')', 1).replace(
+		'?', '('+(','.join(months))+')', 1).replace(
+		'?', '('+(','.join(weeks))+')', 1).replace(
+		'?', str(latMax+0.002), 1).replace(
+		'?', str(latMin-0.002), 1).replace(
+		'?', str(longMax+0.002), 1).replace(
+		'?', str(longMin-0.002), 1)
+
+	# TODO: Add dayHours to Query using AND / OR
+	dayHoursStr = ''
+	if len(dayHours) > 0:
+		# Guido van Rossum mag das nicht (von einem "Lisp-Hacker" eingefuehrt)
+		dayHoursStr = 'AND ('
+		dayHoursStr += ' OR '.join(map(lambda dh:'(WEEKDAY(PICKUP_TIME)='+dh[0]+' AND HOUR(PICKUP_TIME)='+dh[1]+')', dayHours))+')'
+
+	query = query.replace('?',dayHoursStr,1)
+	#print(query)
+
+	cur = g.db.cursor()
+	cur.execute(query)
+	locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
+
+	return json.dumps(locations)
+	"""
 	return json.dumps([
 		dict(lat=40.645320892333984, long=-73.7768783569336),
 		dict(lat=40.72430419921875, long=-73.9999008178711),
@@ -150,6 +192,6 @@ def getHeatmapData():
 	 	dict(lat=40.72579574584961, long=-73.9828872680664),
 		dict(lat=40.72705078125, long=-73.99354553222656),
 	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
-
+	"""
 if __name__ == '__main__':
 	app.run()
