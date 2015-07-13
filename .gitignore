@@ -68,3 +68,4 @@ target/
 
 # TK Spiking
 tk_spiking/*
+venv/
