@@ -1,4 +1,5 @@
 def queryYears(months, years):
+	# TODO: Add Dummy check
 	query = open('./queries/frontend/barcharts/getYearsCount.sql').read()
 
 	print('Executing years query...')
@@ -21,6 +22,7 @@ def queryYears(months, years):
 	return {'years': yearsCount, 'months': data['months'], 'weeks': data['weeks']}
 
 def queryMonths(months, years):
+	# TODO: Add Dummy check
 	query = open('./queries/frontend/barcharts/getMonthsCount.sql').read()
 
 	print('Executing months query...')
@@ -95,6 +97,7 @@ def queryMonths(months, years):
 	return {'months': monthsCount, 'weeks': weeksCount}
 
 def queryWeeks(months, years):
+	# TODO: Add Dummy check
 	query = open('./queries/frontend/barcharts/getWeeksCount.sql').read()
 
 	print('Executing weeks query...')

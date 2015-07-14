@@ -1,3 +1,4 @@
+var UPDATE_DELAY = 3 // Seconds (waiting after input)
 
 var yearData = [{'year': '2010'}, {'year': '2011'}, {'year': '2012'}, {'year': '2013'}],
 	monthData = [{'month': 1}],
@@ -77,59 +78,77 @@ function releaseLock() {
 
 // --- UPDATES ----------------------------------------------- //
 
+var barchartsCallID = -1
 function updateBarCharts(name) {
-	if (name == "year") {
-		// Loads new data, reloads bar chart and releases lock
-		updateMonthsWeeks(selectedYears, selectedMonths)
-	} else if (name == "month") {
-		// Loads new data, reloads bar chart and releases lock
-		updateWeeks(selectedYears, selectedMonths)
-	} else if (name == "week") {
-	// No bar chart changes
-		releaseLock()
-	}
+	setTimeout(function(myID){
+		// Check ID
+		if (myID != barchartsCallID) {
+			if (name == "year") {
+				// Loads new data, reloads bar chart and releases lock
+				updateMonthsWeeks(selectedYears, selectedMonths)
+			} else if (name == "month") {
+				// Loads new data, reloads bar chart and releases lock
+				updateWeeks(selectedYears, selectedMonths)
+			} else if (name == "week") {
+			// No bar chart changes
+				releaseLock()
+			}
+		}
+	}, UPDATE_DELAY * , ++barchartsCallID)
 }
 
+var heatmapCallID = -1
 function updateHeatMap() {
-	years = selectedYears.map(function(index){return yearData[index]['year']})
-	months = selectedMonths.map(function(index){return (index+1)+""})
-	weeks = selectedWeeks.map(function(index){return (index+1)+""})
-	// TODO: Get hours of days from Calmap
-	// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
-	dayHours = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 16]]
+	setTimeout(function(myID){
+		// Check ID
+		if (myID != heatmapCallID) {
+			years = selectedYears.map(function(index){return yearData[index]['year']})
+			months = selectedMonths.map(function(index){return (index+1)+""})
+			weeks = selectedWeeks.map(function(index){return (index+1)+""})
+			// TODO: Get hours of days from Calmap
+			// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
+			dayHours = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 16]]
 
-	$.ajax({
-		type: "POST",
-		url: "/getHeatMapData",
-		data: {
-			"years": years,
-			"months": months,
-			"weeks": weeks,
-			"dayHours": dayHours,
-			"SouthWest": southWest,
-			"NorthEast": northEast
-		},
-		success: heatMapCallback
-	})
+			$.ajax({
+				type: "POST",
+				url: "/getHeatMapData",
+				data: {
+					"years": years,
+					"months": months,
+					"weeks": weeks,
+					"dayHours": dayHours,
+					"SouthWest": southWest,
+					"NorthEast": northEast
+				},
+				success: heatMapCallback
+			})
+		}
+	}, UPDATE_DELAY * , ++heatmapCallID)
 }
 
+var calmapCallID = -1
 function updateCalMap() {
-	years = selectedYears.map(function(index){return yearData[index]['year']})
-	months = selectedMonths.map(function(index){return (index+1)+""})
-	weeks = selectedWeeks.map(function(index){return (index+1)+""})
-	// TODO: Get hours of days from Calmap
-	// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
+	setTimeout(function(myID){
+		// Check ID
+		if (myID != calmapCallID) {
+			years = selectedYears.map(function(index){return yearData[index]['year']})
+			months = selectedMonths.map(function(index){return (index+1)+""})
+			weeks = selectedWeeks.map(function(index){return (index+1)+""})
+			// TODO: Get hours of days from Calmap
+			// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
 
-	$.ajax({
-		type: "POST",
-		url: "/getCalMapData",
-		data: {
-			"years": years,
-			"months": months,
-			"weeks": weeks,
-			"SouthWest": southWest,
-			"NorthEast": northEast
-		},
-		success: calmapCallback
-	})
+			$.ajax({
+				type: "POST",
+				url: "/getCalMapData",
+				data: {
+					"years": years,
+					"months": months,
+					"weeks": weeks,
+					"SouthWest": southWest,
+					"NorthEast": northEast
+				},
+				success: calmapCallback
+			})
+		}
+	}, UPDATE_DELAY * , ++calmapCallID)
 }

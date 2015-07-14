@@ -10,6 +10,7 @@ from barchartsCalculator import queryYears, queryMonths, queryWeeks
 
 #configuration
 DEBUG = True
+DUMMY = False
 SECRET_KEY = SECRET
 USERNAME = flask_user
 PASSWORD = flask_password
@@ -18,15 +19,19 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 
 def connect_db():
+	global DUMMY
 	try:
 		connection = pyhdb.connect(
 			host = db_HOST,
 			port = db_PORT,
 			user = db_USER,
 			password = db_PASSWORD)
+		DUMMY = False
 		return connection
 	except:
-		raise Exception('HANA connection failed. Did you turn on VPN?')
+		print('HANA connection failed. Did you turn on VPN?')
+		DUMMY = True
+		# raise Exception('HANA connection failed. Did you turn on VPN?')
 
 @app.before_request
 def before_request():
@@ -86,136 +91,135 @@ def responseWeeks():
 
 @app.route('/getCalMapData', methods=['GET', 'POST'])
 def getCalmapData():
-	requestObj = request.args if (request.method == 'GET') else request.form
-	years = requestObj.getlist('years[]');
-	months = requestObj.getlist('months[]');
-	weeks = requestObj.getlist('weeks[]');
-	dayHours = requestObj.getlist('dayHours[]');
-	south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
-				'long': float(requestObj.get('SouthWest[long]'))}
-	north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
- 				'long': float(requestObj.get('NorthEast[long]'))}
+	if (DUMMY):
+		requestObj = request.args if (request.method == 'GET') else request.form
+		years = requestObj.getlist('years[]');
+		months = requestObj.getlist('months[]');
+		weeks = requestObj.getlist('weeks[]');
+		dayHours = requestObj.getlist('dayHours[]');
+		south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
+					'long': float(requestObj.get('SouthWest[long]'))}
+		north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
+	 				'long': float(requestObj.get('NorthEast[long]'))}
 
-	latMax = south_west['lat']
-	latMin = north_east['lat']
-	if (south_west['lat'] < north_east['lat']):
-		latMax = north_east['lat']
-		latMin = south_west['lat']
-	longMax = south_west['long']
-	longMin = north_east['long']
-	if (south_west['long'] < north_east['long']):
-		longMax = north_east['long']
-		longMin = south_west['long']
+		latMax = south_west['lat']
+		latMin = north_east['lat']
+		if (south_west['lat'] < north_east['lat']):
+			latMax = north_east['lat']
+			latMin = south_west['lat']
+		longMax = south_west['long']
+		longMin = north_east['long']
+		if (south_west['long'] < north_east['long']):
+			longMax = north_east['long']
+			longMin = south_west['long']
+		# Query results including params
+		query = open('./queries/frontend/calmap/getCalMapData.sql').read()
 
-	# Query results including params
-	query = open('./queries/frontend/calmap/getCalMapData.sql').read()
+		# TODO: Check if years, months or weeks is null
+		query = query.replace('?', '('+(','.join(years))+')', 1).replace(
+			'?', '('+(','.join(months))+')', 1).replace(
+			'?', '('+(','.join(weeks))+')', 1).replace(
+			'?', str(latMax+0.002), 1).replace(
+			'?', str(latMin-0.002), 1).replace(
+			'?', str(longMax+0.002), 1).replace(
+			'?', str(longMin-0.002), 1)
+		print('Executing calmap query...')
 
-	# TODO: Check if years, months or weeks is null
-	query = query.replace('?', '('+(','.join(years))+')', 1).replace(
-		'?', '('+(','.join(months))+')', 1).replace(
-		'?', '('+(','.join(weeks))+')', 1).replace(
-		'?', str(latMax+0.002), 1).replace(
-		'?', str(latMin-0.002), 1).replace(
-		'?', str(longMax+0.002), 1).replace(
-		'?', str(longMin-0.002), 1)
-	print('Executing calmap query...')
+		cur = g.db.cursor()
+		cur.execute(query)
+		timestamps = [[row[0], row[1]] for row in cur.fetchall()]
 
-	"""
-	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
-	return Response(resultAsJson)
-	"""
+		monday = 946854000
+		sec_per_day = 86400
+		sec_per_minute = 60
+		sec_per_hour = 3600
 
-	cur = g.db.cursor()
-	cur.execute(query)
-	timestamps = [[row[0], row[1]] for row in cur.fetchall()]
-
-	monday = 946854000
-	sec_per_day = 86400
-	sec_per_minute = 60
-	sec_per_hour = 3600
-
-	result = dict()
-	for timestamp in timestamps:
-		key = timestamp[1] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * 30
-		if key in result:
-			result[key] += 1
-		else:
-			result[key] = 1
-	return Response(json.dumps(result))
+		result = dict()
+		for timestamp in timestamps:
+			key = timestamp[1] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * 30
+			if key in result:
+				result[key] += 1
+			else:
+				result[key] = 1
+		return Response(json.dumps(result))
+	else:
+		resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
+		return Response(resultAsJson)
 
 @app.route('/getHeatMapData', methods=['GET', 'POST'])
 def getHeatmapData():
-	requestObj = request.args if (request.method == 'GET') else request.form
-	years = requestObj.getlist('years[]');
-	months = requestObj.getlist('months[]');
-	weeks = requestObj.getlist('weeks[]');
-	south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
-				'long': float(requestObj.get('SouthWest[long]'))}
-	north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
- 				'long': float(requestObj.get('NorthEast[long]'))}
-	i = 0;
-	dayHours = [];
-	while(requestObj.getlist('dayHours['+str(i)+'][]')):
-		dayHours.append(requestObj.getlist('dayHours['+str(i)+'][]'))
-		i += 1
+	if (DUMMY):
+		requestObj = request.args if (request.method == 'GET') else request.form
+		years = requestObj.getlist('years[]');
+		months = requestObj.getlist('months[]');
+		weeks = requestObj.getlist('weeks[]');
+		south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
+					'long': float(requestObj.get('SouthWest[long]'))}
+		north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
+	 				'long': float(requestObj.get('NorthEast[long]'))}
+		i = 0;
+		dayHours = [];
+		while(requestObj.getlist('dayHours['+str(i)+'][]')):
+			dayHours.append(requestObj.getlist('dayHours['+str(i)+'][]'))
+			i += 1
 
-	latMax = south_west['lat']
-	latMin = north_east['lat']
-	if (south_west['lat'] < north_east['lat']):
-		latMax = north_east['lat']
-		latMin = south_west['lat']
-	longMax = south_west['long']
-	longMin = north_east['long']
-	if (south_west['long'] < north_east['long']):
-		longMax = north_east['long']
-		longMin = south_west['long']
+		latMax = south_west['lat']
+		latMin = north_east['lat']
+		if (south_west['lat'] < north_east['lat']):
+			latMax = north_east['lat']
+			latMin = south_west['lat']
+		longMax = south_west['long']
+		longMin = north_east['long']
+		if (south_west['long'] < north_east['long']):
+			longMax = north_east['long']
+			longMin = south_west['long']
 
 
 
-	# Query results including params
-	query = open('./queries/frontend/heatmap/getHeatMapPositions.sql').read()
+		# Query results including params
+		query = open('./queries/frontend/heatmap/getHeatMapPositions.sql').read()
 
-	# TODO: Check if years, months or weeks is null
-	query = query.replace('?', '('+(','.join(years))+')', 1).replace(
-		'?', '('+(','.join(months))+')', 1).replace(
-		'?', '('+(','.join(weeks))+')', 1).replace(
-		'?', str(latMax+0.002), 1).replace(
-		'?', str(latMin-0.002), 1).replace(
-		'?', str(longMax+0.002), 1).replace(
-		'?', str(longMin-0.002), 1)
+		# TODO: Check if years, months or weeks is null
+		query = query.replace('?', '('+(','.join(years))+')', 1).replace(
+			'?', '('+(','.join(months))+')', 1).replace(
+			'?', '('+(','.join(weeks))+')', 1).replace(
+			'?', str(latMax+0.002), 1).replace(
+			'?', str(latMin-0.002), 1).replace(
+			'?', str(longMax+0.002), 1).replace(
+			'?', str(longMin-0.002), 1)
 
-	# Add dayHours to Query using AND / OR
-	dayHoursStr = ''
-	weekday_hour_string = '(WEEKDAY(PICKUP_TIME)={} AND HOUR(PICKUP_TIME)={})'
-	hour_string = ''	
-	if len(dayHours) > 0:
-		dayHoursStr = 'AND ('
-		dayHoursStr += ' OR '.join([weekday_hour_string.format(*dh) for dh in dayHours]) + ')'
-	query = query.replace('?',dayHoursStr,1)
+		# Add dayHours to Query using AND / OR
+		dayHoursStr = ''
+		weekday_hour_string = '(WEEKDAY(PICKUP_TIME)={} AND HOUR(PICKUP_TIME)={})'
+		hour_string = ''
+		if len(dayHours) > 0:
+			dayHoursStr = 'AND ('
+			dayHoursStr += ' OR '.join([weekday_hour_string.format(*dh) for dh in dayHours]) + ')'
+		query = query.replace('?',dayHoursStr,1)
 
-	print('Executing heatmap query...')
+		print('Executing heatmap query...')
 
-	cur = g.db.cursor()
-	cur.execute(query)
-	locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
+		cur = g.db.cursor()
+		cur.execute(query)
+		locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
 
-	return json.dumps(locations)
-	"""
-	return json.dumps([
-		dict(lat=40.645320892333984, long=-73.7768783569336),
-		dict(lat=40.72430419921875, long=-73.9999008178711),
-		dict(lat=40.762916564941406, long=-73.99524688720703),
-		dict(lat=40.747989654541016, long=-73.97357940673828),
-		dict(lat=40.68174362182617, long=-73.98006439208984),
-		dict(lat=40.774208068847656, long=-73.87296295166016),
-		dict(lat=40.75990676879883, long=-73.99391174316406),
-		dict(lat=40.76718521118164, long=-73.99007415771484),
-		dict(lat=40.645050048828125, long=-73.79256439208984),
-		dict(lat=40.751739501953125, long=-73.89812469482422),
-		dict(lat=40.78850555419922, long=-73.94905853271484),
-	 	dict(lat=40.72579574584961, long=-73.9828872680664),
-		dict(lat=40.72705078125, long=-73.99354553222656),
-	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
-	"""
+		return json.dumps(locations)
+	else:
+		return json.dumps([
+			dict(lat=40.645320892333984, long=-73.7768783569336),
+			dict(lat=40.72430419921875, long=-73.9999008178711),
+			dict(lat=40.762916564941406, long=-73.99524688720703),
+			dict(lat=40.747989654541016, long=-73.97357940673828),
+			dict(lat=40.68174362182617, long=-73.98006439208984),
+			dict(lat=40.774208068847656, long=-73.87296295166016),
+			dict(lat=40.75990676879883, long=-73.99391174316406),
+			dict(lat=40.76718521118164, long=-73.99007415771484),
+			dict(lat=40.645050048828125, long=-73.79256439208984),
+			dict(lat=40.751739501953125, long=-73.89812469482422),
+			dict(lat=40.78850555419922, long=-73.94905853271484),
+		 	dict(lat=40.72579574584961, long=-73.9828872680664),
+			dict(lat=40.72705078125, long=-73.99354553222656),
+		 	dict(lat=40.74961853027344, long=-73.99532318115234)])
+
 if __name__ == '__main__':
 	app.run()
