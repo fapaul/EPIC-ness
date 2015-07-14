@@ -119,7 +119,7 @@ def getCalmapData():
 		'?', str(longMax+0.002), 1).replace(
 		'?', str(longMin-0.002), 1)
 	print('Executing calmap query...')
-	
+
 	"""
 	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
 	return Response(resultAsJson)
@@ -127,7 +127,7 @@ def getCalmapData():
 
 	cur = g.db.cursor()
 	cur.execute(query)
-	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
+	timestamps = [[row[0], row[1]] for row in cur.fetchall()]
 
 	monday = 946854000
 	sec_per_day = 86400
@@ -136,7 +136,7 @@ def getCalmapData():
 
 	result = dict()
 	for timestamp in timestamps:
-		key = timestamp[2] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * timestamp[1]
+		key = timestamp[1] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * 30
 		if key in result:
 			result[key] += 1
 		else:
@@ -194,7 +194,11 @@ def getHeatmapData():
 	query = query.replace('?',dayHoursStr,1)
 
 	print('Executing heatmap query...')
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> 8a5c131afd5774b58b1a72034c90cdf16ea154d2
 	cur = g.db.cursor()
 	cur.execute(query)
 	locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
