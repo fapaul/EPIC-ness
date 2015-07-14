@@ -114,12 +114,11 @@ function updateHeatMap() {
 }
 
 function updateCalMap() {
-	years = selectedYears.map(function(index){return yearData['index']})
-	months = selectedMonths.map(function(index){return monthData['index']})
-	weeks = selectedWeeks.map(function(index){return weekData['index']})
+	years = selectedYears.map(function(index){return yearData[index]['year']})
+	months = selectedMonths.map(function(index){return monthData[index]['month']})
+	weeks = selectedWeeks.map(function(index){return weekData[index]['week']})
 	// TODO: Get hours of days from Calmap
 	// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
-	dayHours = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 16]]
 
 	$.ajax({
 		type: "POST",
@@ -128,7 +127,6 @@ function updateCalMap() {
 			"years": years,
 			"months": months,
 			"weeks": weeks,
-			"dayHours": dayHours,
 			"SouthWest": southWest,
 			"NorthEast": northEast
 		},
