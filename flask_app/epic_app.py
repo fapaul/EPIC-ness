@@ -9,7 +9,7 @@ from barchartsCalculator import queryYears, queryMonths, queryWeeks
 #TODO: Store dummy data in json files (heatmap, barcharts, calmap)
 
 #configuration
-DEBUG = True
+DEBUG = False
 DUMMY = False
 SECRET_KEY = SECRET
 USERNAME = flask_user
@@ -20,18 +20,20 @@ app.config.from_object(__name__)
 
 def connect_db():
 	global DUMMY
-	try:
-		connection = pyhdb.connect(
-			host = db_HOST,
-			port = db_PORT,
-			user = db_USER,
-			password = db_PASSWORD)
-		DUMMY = False
-		return connection
-	except:
-		print('HANA connection failed. Did you turn on VPN?')
-		DUMMY = True
-		# raise Exception('HANA connection failed. Did you turn on VPN?')
+	if (not DUMMY):
+		try:
+			connection = pyhdb.connect(
+				host = db_HOST,
+				port = db_PORT,
+				user = db_USER,
+				password = db_PASSWORD)
+			DUMMY = False
+			return connection
+		except:
+			print('HANA connection failed. Did you turn on VPN?')
+			DUMMY = True
+			# raise Exception('HANA connection failed. Did you turn on VPN?')
+	return None
 
 @app.before_request
 def before_request():
@@ -91,7 +93,7 @@ def responseWeeks():
 
 @app.route('/getCalMapData', methods=['GET', 'POST'])
 def getCalmapData():
-	if (DUMMY):
+	if (not DUMMY):
 		requestObj = request.args if (request.method == 'GET') else request.form
 		years = requestObj.getlist('years[]');
 		months = requestObj.getlist('months[]');
@@ -148,7 +150,7 @@ def getCalmapData():
 
 @app.route('/getHeatMapData', methods=['GET', 'POST'])
 def getHeatmapData():
-	if (DUMMY):
+	if (not DUMMY):
 		requestObj = request.args if (request.method == 'GET') else request.form
 		years = requestObj.getlist('years[]');
 		months = requestObj.getlist('months[]');

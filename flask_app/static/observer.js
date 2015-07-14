@@ -19,6 +19,9 @@ var locked = false
 // --- OBSERVER ---------------------------------------------- //
 
 $(function initObserver() {
+	origDelay = UPDATE_DELAY
+	UPDATE_DELAY = 0
+
 	// Barcharts
 	loadBarchartsData();
 
@@ -27,6 +30,8 @@ $(function initObserver() {
 
 	// Calmap
 	displayCalMap();
+
+	UPDATE_DELAY = origDelay
 })
 
 // -- Variable updates --------------------------------------- //
@@ -82,7 +87,7 @@ var barchartsCallID = -1
 function updateBarCharts(name) {
 	setTimeout(function(myID){
 		// Check ID
-		if (myID != barchartsCallID) {
+		if (myID == barchartsCallID) {
 			if (name == "year") {
 				// Loads new data, reloads bar chart and releases lock
 				updateMonthsWeeks(selectedYears, selectedMonths)
@@ -93,15 +98,17 @@ function updateBarCharts(name) {
 			// No bar chart changes
 				releaseLock()
 			}
+		} else {
+			releaseLock()
 		}
-	}, UPDATE_DELAY * , ++barchartsCallID)
+	}, UPDATE_DELAY * 1000, ++barchartsCallID)
 }
 
 var heatmapCallID = -1
 function updateHeatMap() {
 	setTimeout(function(myID){
 		// Check ID
-		if (myID != heatmapCallID) {
+		if (myID == heatmapCallID) {
 			years = selectedYears.map(function(index){return yearData[index]['year']})
 			months = selectedMonths.map(function(index){return (index+1)+""})
 			weeks = selectedWeeks.map(function(index){return (index+1)+""})
@@ -123,14 +130,14 @@ function updateHeatMap() {
 				success: heatMapCallback
 			})
 		}
-	}, UPDATE_DELAY * , ++heatmapCallID)
+	}, UPDATE_DELAY * 1000, ++heatmapCallID)
 }
 
 var calmapCallID = -1
 function updateCalMap() {
 	setTimeout(function(myID){
 		// Check ID
-		if (myID != calmapCallID) {
+		if (myID == calmapCallID) {
 			years = selectedYears.map(function(index){return yearData[index]['year']})
 			months = selectedMonths.map(function(index){return (index+1)+""})
 			weeks = selectedWeeks.map(function(index){return (index+1)+""})
@@ -150,5 +157,5 @@ function updateCalMap() {
 				success: calmapCallback
 			})
 		}
-	}, UPDATE_DELAY * , ++calmapCallID)
+	}, UPDATE_DELAY * 1000, ++calmapCallID)
 }
