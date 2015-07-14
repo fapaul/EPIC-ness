@@ -186,11 +186,11 @@ def getHeatmapData():
 
 	# Add dayHours to Query using AND / OR
 	dayHoursStr = ''
+	weekday_hour_string = '(WEEKDAY(PICKUP_TIME)={} AND HOUR(PICKUP_TIME)={})'
+	hour_string = ''	
 	if len(dayHours) > 0:
-		# Guido van Rossum mag das nicht (von einem "Lisp-Hacker" eingefuehrt)
 		dayHoursStr = 'AND ('
-		dayHoursStr += ' OR '.join(map(lambda dh:'(WEEKDAY(PICKUP_TIME)='+dh[0]+' AND HOUR(PICKUP_TIME)='+dh[1]+')', dayHours))+')'
-
+		dayHoursStr += ' OR '.join([weekday_hour_string.format(*dh) for dh in dayHours]) + ')'
 	query = query.replace('?',dayHoursStr,1)
 
 	print('Executing heatmap query...')
