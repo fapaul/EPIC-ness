@@ -194,7 +194,7 @@ def getHeatmapData():
 	query = query.replace('?',dayHoursStr,1)
 
 	print('Executing heatmap query...')
-	"""
+	
 	cur = g.db.cursor()
 	cur.execute(query)
 	locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
@@ -216,6 +216,6 @@ def getHeatmapData():
 	 	dict(lat=40.72579574584961, long=-73.9828872680664),
 		dict(lat=40.72705078125, long=-73.99354553222656),
 	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
-
+	"""
 if __name__ == '__main__':
 	app.run()
