@@ -1,15 +1,15 @@
 SELECT
-    week, AVG(TOTAL) as Average_Total
+  week, AVG(TOTAL)
 FROM
-    (
-        SELECT
-            ROUND(DAYOFMONTH(PICKUP_TIME) / 7, 0, ROUND_UP) as week
-        FROM
-            NYCCAB.FARE
-		WHERE
-			MONTH(PICKUP_TIME) in ? and YEAR(PICKUP_TIME) in ?
-    )
-WHERE
-    week in ?
+  (
+    SELECT
+      ROUND(DAYOFMONTH(PICKUP_TIME) / 7, 0, ROUND_UP) as week
+    FROM
+      NYCCAB.FARE
+    WHERE
+			YEAR(PICKUP_TIME) in ? AND MONTH(PICKUP_TIME) in ?
+  )
 GROUP BY
-    week
+  week
+ORDER BY
+  week

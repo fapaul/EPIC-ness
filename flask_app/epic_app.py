@@ -91,26 +91,49 @@ def getCalmapData():
 	months = requestObj.getlist('months[]');
 	weeks = requestObj.getlist('weeks[]');
 	dayHours = requestObj.getlist('dayHours[]');
-	south_west = {'lat': requestObj.get('SouthWest[lat]'),
-				'long': requestObj.get('SouthWest[long]')}
-	north_east = {'lat': requestObj.get('NorthEast[lat]'),
- 				'long': requestObj.get('NorthEast[long]')}
+	south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
+				'long': float(requestObj.get('SouthWest[long]'))}
+	north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
+ 				'long': float(requestObj.get('NorthEast[long]'))}
 
+	latMax = south_west['lat']
+	latMin = north_east['lat']
+	if (south_west['lat'] < north_east['lat']):
+		latMax = north_east['lat']
+		latMin = south_west['lat']
+	longMax = south_west['long']
+	longMin = north_east['long']
+	if (south_west['long'] < north_east['long']):
+		longMax = north_east['long']
+		longMin = south_west['long']
+
+	# Query results including params
+	query = open('./queries/frontend/calmap/getCalMapData.sql').read()
+
+	# TODO: Check if years, months or weeks is null
+	query = query.replace('?', '('+(','.join(years))+')', 1).replace(
+		'?', '('+(','.join(months))+')', 1).replace(
+		'?', '('+(','.join(weeks))+')', 1).replace(
+		'?', str(latMax+0.002), 1).replace(
+		'?', str(latMin-0.002), 1).replace(
+		'?', str(longMax+0.002), 1).replace(
+		'?', str(longMin-0.002), 1)
+	print('Executing calmap query...')
+	
+	"""
 	resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
 	return Response(resultAsJson)
-
-	#TODO: write query for calmap with sw and ne
 	"""
+
+	cur = g.db.cursor()
+	cur.execute(query)
+	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
+
 	monday = 946854000
 	sec_per_day = 86400
 	sec_per_minute = 60
 	sec_per_hour = 3600
-	cur = g.db.cursor()
 
-	query = open('./queries/frontend/calmap/getCalMapData.sql').read()
-	cur.execute(query)
-
-	timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
 	result = dict()
 	for timestamp in timestamps:
 		key = timestamp[2] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * timestamp[1]
@@ -119,7 +142,6 @@ def getCalmapData():
 		else:
 			result[key] = 1
 	return Response(json.dumps(result))
-	"""
 
 @app.route('/getHeatMapData', methods=['GET', 'POST'])
 def getHeatmapData():
@@ -153,6 +175,7 @@ def getHeatmapData():
 	# Query results including params
 	query = open('./queries/frontend/heatmap/getHeatMapPositions.sql').read()
 
+	# TODO: Check if years, months or weeks is null
 	query = query.replace('?', '('+(','.join(years))+')', 1).replace(
 		'?', '('+(','.join(months))+')', 1).replace(
 		'?', '('+(','.join(weeks))+')', 1).replace(
@@ -161,7 +184,7 @@ def getHeatmapData():
 		'?', str(longMax+0.002), 1).replace(
 		'?', str(longMin-0.002), 1)
 
-	# TODO: Add dayHours to Query using AND / OR
+	# Add dayHours to Query using AND / OR
 	dayHoursStr = ''
 	weekday_hour_string = '(WEEKDAY(PICKUP_TIME)={} AND HOUR(PICKUP_TIME)={})'
 	hour_string = ''	
@@ -169,8 +192,9 @@ def getHeatmapData():
 		dayHoursStr = 'AND ('
 		dayHoursStr += ' OR '.join([weekday_hour_string.format(*dh) for dh in dayHours]) + ')'
 	query = query.replace('?',dayHoursStr,1)
-	#print(query)
 
+	print('Executing heatmap query...')
+	"""
 	cur = g.db.cursor()
 	cur.execute(query)
 	locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
@@ -192,6 +216,6 @@ def getHeatmapData():
 	 	dict(lat=40.72579574584961, long=-73.9828872680664),
 		dict(lat=40.72705078125, long=-73.99354553222656),
 	 	dict(lat=40.74961853027344, long=-73.99532318115234)])
-	"""
+
 if __name__ == '__main__':
 	app.run()
