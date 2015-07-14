@@ -92,8 +92,8 @@ function updateBarCharts(name) {
 
 function updateHeatMap() {
 	years = selectedYears.map(function(index){return yearData[index]['year']})
-	months = selectedMonths.map(function(index){return monthData[index]['month']})
-	weeks = selectedWeeks.map(function(index){return weekData[index]['week']})
+	months = selectedMonths.map(function(index){return (index+1)+""})
+	weeks = selectedWeeks.map(function(index){return (index+1)+""})
 	// TODO: Get hours of days from Calmap
 	// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
 	dayHours = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 16]]
@@ -115,8 +115,8 @@ function updateHeatMap() {
 
 function updateCalMap() {
 	years = selectedYears.map(function(index){return yearData[index]['year']})
-	months = selectedMonths.map(function(index){return monthData[index]['month']})
-	weeks = selectedWeeks.map(function(index){return weekData[index]['week']})
+	months = selectedMonths.map(function(index){return (index+1)+""})
+	weeks = selectedWeeks.map(function(index){return (index+1)+""})
 	// TODO: Get hours of days from Calmap
 	// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
 
