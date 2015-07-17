@@ -10,15 +10,15 @@
     <meta name="author" content="">
 
 	<!-- Calmap -->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='/scripts/cal-heatmap.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/cal-heatmap.css') }}">
 
     <title>Visualize cab data (EPIC 2)</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="{{ url_for('static', filename='/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='/css/small-business.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/small-business.css') }}" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -94,27 +94,27 @@
     <!-- /.container -->
 
     <!-- jQuery -->
-    <script src="{{ url_for('static', filename='/scripts/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/jquery.js') }}"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="{{ url_for('static', filename='/scripts/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/bootstrap.min.js') }}"></script>
 
 	<!-- Calmap -->
-	<script src="{{ url_for('static', filename='/scripts/d3.v3.min.js') }}" charset="utf-8"></script>
-	<script src="{{ url_for('static', filename='/scripts/cal-heatmap.min.js') }}" ></script>
-	<script src="{{ url_for('static', filename='/scripts/calMap.js') }}"></script>
+	<script src="{{ url_for('static', filename='scripts/d3.v3.min.js') }}" charset="utf-8"></script>
+	<script src="{{ url_for('static', filename='scripts/cal-heatmap.min.js') }}" ></script>
+	<script src="{{ url_for('static', filename='scripts/calMap.js') }}"></script>
 
 	<!-- Heatmap -->
 	<script src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>
-	<script src="{{ url_for('static', filename='/scripts//scripts/heatMap.js') }}"></script>
+	<script src="{{ url_for('static', filename='scripts/heatMap.js') }}"></script>
 
 	<!-- Barcharts -->
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-	<script src="{{ url_for('static', filename='/scripts/barcharts.js') }}"></script>
-	<script src="{{ url_for('static', filename='/scripts/displayChart.js') }}"></script>
+	<script src="{{ url_for('static', filename='scripts/barcharts.js') }}"></script>
+	<script src="{{ url_for('static', filename='scripts/displayChart.js') }}"></script>
 
 	<!-- Observer (Contains Updating functions)-->
-	<script src="{{ url_for('static', filename='/scripts/observer.js') }}"></script>
+	<script src="{{ url_for('static', filename='scripts/observer.js') }}"></script>
 
 	<!-- TODO: Balkendiagramm-Events abfangen -> AJAX auf Python (Hana query) -> Heatmap & CalMap reloaden -->
 </body>
