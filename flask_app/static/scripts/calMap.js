@@ -1,5 +1,6 @@
 var cal
 var highlighted = []
+var mouseDown = false
 
 function displayCalmap(){
 	cal = new CalHeatMap();
@@ -42,8 +43,31 @@ function displayCalmap(){
 			} else {
 				debugLog('Calmap: Couldn\'t handle clicked event because of a lock')
 			}
+		},
+		afterLoad: function() {
+			d3.select('.cal-heatmap-container').append('svg:rect')
+				.attr('width', 832) // the whole width of g/svg
+				.attr('height', 302) // the whole heigh of g/svg
+				.attr('fill', 'none')
+				.attr('pointer-events', 'all')
+				.on('mousedown', function() {
+					mouseDown = true
+					console.log('save origin')
+					// TODO: Create svg rect and store in global variable
+				})
+				.on('mousemove', function() {
+					if (mouseDown) {
+						console.log('save extent')
+						// TODO: Update width and height of the global stored svg rect
+					}
+				})
+				.on('mouseup', function() {
+					mouseDown = false
+					console.log('highlight selection!')
+					// TODO: Check for legal coordinates, get selected elements, change highligthed array, call update
+				})
 		}
-	});
+	})
 	/*
 		TODO:
 		1.) Remove onClick-Listener from calmap init function
