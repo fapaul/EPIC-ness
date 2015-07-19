@@ -1,0 +1,115 @@
+/* Custom css settings */
+
+#cal-heatmap {
+	padding-top: 20px;
+	padding-left: 10px;
+}
+
+#map-canvas	{
+	height: 300px;
+	width: 30%;
+}
+
+#barchart-1 {
+	/*background-color: #88F;*/
+	height: 200px;
+}
+#barchart-1-container {
+	width: 25%;
+}
+
+#barchart-2 {
+	/*background-color: #AAF;*/
+	height: 200px;
+}
+#barchart-2-container {
+	width: 50%;
+}
+
+#barchart-3 {
+	/*background-color: #CCF;*/
+	height: 200px;
+}
+
+#barchart-3-container {
+	width: 25%;
+}
+
+.barchart-title {
+	text-align: center;
+	font-size: 19px;
+}
+
+.domain { 
+	fill: none; 
+	stroke: black; 
+	stroke-width: 1; 
+}
+
+.highlight {
+	fill: #3A3AAB
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+
+/* GIIVEN CODE BELOW*/
+
+/*!
+ * Start Bootstrap - Small Business HTML Template (http://startbootstrap.com)
+ * Code licensed under the Apache License v2.0.
+ * For details, see http://www.apache.org/licenses/LICENSE-2.0.
+ */
+
+body {
+    padding-top: 70px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
+}
+
+.navbar-fixed-top .nav {
+    padding: 15px 0;
+}
+
+.navbar-fixed-top .navbar-brand {
+    padding: 0 15px;
+}
+
+footer {
+    padding: 30px 0;
+}
+
+@media(min-width:768px) {
+    body {
+        padding-top: 40px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
+    }
+
+    .navbar-fixed-top .navbar-brand {
+        padding: 15px 0;
+    }
+}
