@@ -88,7 +88,7 @@ function displayBarChart(chartData, divName) {
 		.on("click", function(d) {
 			// TODO: Visualize locking (loading gif, gray layer, bottom note, etc.)
 			// TODO: Export this function to barcharts.js
-			if (requestLock()) {
+			if (!isLocked()) {
 				if (!d['clicked']) {
 					d['clicked'] = true;
 					d3.select(this).classed("highlight", true);

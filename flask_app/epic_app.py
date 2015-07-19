@@ -30,7 +30,7 @@ def connect_db():
 			DUMMY = False
 			return connection
 		except:
-			print('HANA connection failed. Did you turn on VPN?')
+			print('HANA connection failed!')
 			DUMMY = True
 			# raise Exception('HANA connection failed. Did you turn on VPN?')
 	return None
@@ -63,7 +63,7 @@ def responseYears():
 		years = request.form.getlist('years[]')
 
 	# Exported because queryMonths is also used by queryYears
-	return Response(json.dumps(queryYears(months, years)))
+	return Response(json.dumps(queryYears(g.db, DUMMY, months, years)))
 
 # Contains counts for months and weeks
 @app.route('/getMonthsCount', methods=['GET', 'POST'])
@@ -76,7 +76,7 @@ def responseMonths():
 		years = request.form.getlist('years[]')
 
 	# Exported because queryMonths is also used by queryYears
-	return Response(json.dumps(queryMonths(months, years)))
+	return Response(json.dumps(queryMonths(g.db, DUMMY, months, years)))
 
 # Contains count for weeks
 @app.route('/getWeeksCount', methods=['GET', 'POST'])
@@ -89,10 +89,11 @@ def responseWeeks():
 		years = request.form.getlist('years[]')
 
 	# Exported because queryWeeks is also used by queryMonths
-	return Response(json.dumps(queryWeeks(months, years)))
+	return Response(json.dumps(queryWeeks(g.db, DUMMY, months, years)))
 
-@app.route('/getCalMapData', methods=['GET', 'POST'])
+@app.route('/getCalmapData', methods=['GET', 'POST'])
 def getCalmapData():
+	print('Executing calmap query...')
 	if (not DUMMY):
 		requestObj = request.args if (request.method == 'GET') else request.form
 		years = requestObj.getlist('years[]');
@@ -115,7 +116,7 @@ def getCalmapData():
 			longMax = north_east['long']
 			longMin = south_west['long']
 		# Query results including params
-		query = open('./queries/frontend/calmap/getCalMapData.sql').read()
+		query = open('./queries/frontend/calmap/getCalmapData.sql').read()
 
 		# TODO: Check if years, months or weeks is null
 		query = query.replace('?', '('+(','.join(years))+')', 1).replace(
@@ -125,7 +126,6 @@ def getCalmapData():
 			'?', str(latMin-0.002), 1).replace(
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1)
-		print('Executing calmap query...')
 
 		cur = g.db.cursor()
 		cur.execute(query)
@@ -148,8 +148,9 @@ def getCalmapData():
 		resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
 		return Response(resultAsJson)
 
-@app.route('/getHeatMapData', methods=['GET', 'POST'])
+@app.route('/getHeatmapData', methods=['GET', 'POST'])
 def getHeatmapData():
+	print('Executing heatmap query...')
 	if (not DUMMY):
 		requestObj = request.args if (request.method == 'GET') else request.form
 		years = requestObj.getlist('years[]');
@@ -179,7 +180,7 @@ def getHeatmapData():
 
 
 		# Query results including params
-		query = open('./queries/frontend/heatmap/getHeatMapPositions.sql').read()
+		query = open('./queries/frontend/heatmap/getHeatmapPositions.sql').read()
 
 		# TODO: Check if years, months or weeks is null
 		query = query.replace('?', '('+(','.join(years))+')', 1).replace(
@@ -198,8 +199,6 @@ def getHeatmapData():
 			dayHoursStr = 'AND ('
 			dayHoursStr += ' OR '.join([weekday_hour_string.format(*dh) for dh in dayHours]) + ')'
 		query = query.replace('?',dayHoursStr,1)
-
-		print('Executing heatmap query...')
 
 		cur = g.db.cursor()
 		cur.execute(query)
