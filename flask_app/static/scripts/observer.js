@@ -12,7 +12,7 @@ var selectedYears = [1],
 var northEast,
 	southWest
 
-var calmapSelection = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 15]]
+var calmapSelection = [[1, 0], [7, 23]] // From Monday 0:00 'til Sunday 23:00
 
 var locked = false
 
@@ -65,10 +65,10 @@ function setHeatmapBounds(northEastBound, southWestBound) {
 	}
 }
 
-function setCalmapSelection(highlighted) {
+function setCalmapSelection(selCells) {
+	// Only save first and last entry, because the selected cells form a rectangle
+	calmapSelection = [selCells[0], selCells[selCells.length-1]]
 	updateHeatmap()
-	// TODO: Save elements in highlighted in a global variable in observer.js
-	// Example: calmapSelection = [[1, 18], [2, 18]] -> Montag und Dienstag um 18:00 Uhr
 }
 
 function requestLock() {
@@ -168,9 +168,6 @@ function updateHeatmap(dontWait) {
 				years = selectedYears.map(function(index){return yearData[index]['year']})
 				months = selectedMonths.map(function(index){return (index+1)+""})
 				weeks = selectedWeeks.map(function(index){return (index+1)+""})
-				// TODO: Get hours of days from Calmap
-				// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
-				dayHours = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 16]]
 
 				$.ajax({
 					type: "POST",
@@ -179,7 +176,7 @@ function updateHeatmap(dontWait) {
 						"years": years,
 						"months": months,
 						"weeks": weeks,
-						"dayHours": dayHours,
+						"dayHours": calmapSelection,
 						"SouthWest": southWest,
 						"NorthEast": northEast
 					},
@@ -213,9 +210,7 @@ function updateCalmap(dontWait) {
 				years = selectedYears.map(function(index){return yearData[index]['year']})
 				months = selectedMonths.map(function(index){return (index+1)+""})
 				weeks = selectedWeeks.map(function(index){return (index+1)+""})
-				// TODO: Get hours of days from Calmap
-				// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
-
+				
 				$.ajax({
 					type: "POST",
 					url: "/getCalmapData",

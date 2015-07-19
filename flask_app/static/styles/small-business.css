@@ -1,5 +1,8 @@
 /* Custom css settings */
 
+
+/* Heatmap */
+
 #cal-heatmap {
 	padding-top: 20px;
 	padding-left: 10px;
@@ -9,6 +12,8 @@
 	height: 300px;
 	width: 30%;
 }
+
+/* Barcharts */
 
 #barchart-1 {
 	/*background-color: #88F;*/
@@ -40,10 +45,27 @@
 	font-size: 19px;
 }
 
-.domain { 
-	fill: none; 
-	stroke: black; 
-	stroke-width: 1; 
+/* Calmap */
+
+rect.selection {
+	stroke: blue;
+	stroke-dasharray: 4px;
+	stroke-opacity: 0.8;
+	fill: transparent;
+	pointer-events: none;
+}
+
+rect.mouseListener {
+	width: 832px;
+	height: 302px;
+	fill: none; /* TODO Test with transparent */
+	pointer-events: all;
+}
+
+.domain {
+	fill: none;
+	stroke: black;
+	stroke-width: 1;
 }
 
 .highlight {
@@ -80,7 +102,7 @@
 }
 
 
-/* GIIVEN CODE BELOW*/
+/* GIVEN CODE BELOW*/
 
 /*!
  * Start Bootstrap - Small Business HTML Template (http://startbootstrap.com)
