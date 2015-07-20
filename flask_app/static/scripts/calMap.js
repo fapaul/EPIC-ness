@@ -169,6 +169,9 @@ function endSelection() {
 					height: parseInt(selector.attr("height"))
 			}
 			selCells = highlightCells(d)
+			for (var i = 0; i < selCells.length; i++) {
+				selCells[i] = [selCells[i].getDay(), selCells[i].getHours()]
+			}
 			setCalmapSelection(selCells)
 		}
 		if (selector) selector.remove()
@@ -183,8 +186,10 @@ function highlightCells(d) {
 		if (rectsIntersect([[cell.x, cell.y], [cell.x+30, cell.y+30]], [[d.x-66, d.y], [d.x+d.width-66, d.y+d.height]])) {
 			selCells.push(new Date(2000, 0, cell.day, cell.hour))
 			cell.gElem.select('text').style('font-weight', 'bold')
+			cell.gElem.style('opacity', '1')
 		} else {
 			cell.gElem.select('text').style('font-weight', 'normal')
+			cell.gElem.style('opacity', '0.6')
 		}
 	}
 	cal.highlight(selCells)

@@ -32,15 +32,24 @@ $(function initObserver() {
 // -- Variable updates --------------------------------------- //
 
 function changeBarchartSelection(barData) {
-	var name = "year"
+	var name // Different behavior for each barchart
 	if (barData != null) {
-		name = Object.keys(barData)[0] // key name: "year", "month" or "week"
+		// "year", "month" or "week"
+		name = Object.keys(barData)[0]
+	} else {
+		// Default value for updating all barcharts
+		name = "year"
 	}
+	// Store clicked element
 	handleNewBarElement(barData, name)
-	// Update Barcharts (abhängig vom angeklickten Diagramm)
+	// Update whole frontend (barcharts, heatmap, calmap)
 	updateBarCharts(name)
-		.then(function(){return updateHeatmap(true)}, debugRejectLog)
-		.then(function(){return updateCalmap(true)}, debugRejectLog)
+		.then(function(){
+			return updateHeatmap(true)
+		}, debugRejectLog)
+		.then(function(){
+			return updateCalmap(true)
+		}, debugRejectLog)
 }
 
 var firstTime = true
@@ -210,7 +219,7 @@ function updateCalmap(dontWait) {
 				years = selectedYears.map(function(index){return yearData[index]['year']})
 				months = selectedMonths.map(function(index){return (index+1)+""})
 				weeks = selectedWeeks.map(function(index){return (index+1)+""})
-				
+
 				$.ajax({
 					type: "POST",
 					url: "/getCalmapData",

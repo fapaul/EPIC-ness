@@ -192,10 +192,10 @@ def getHeatmapData():
 			'?', str(latMin-0.002), 1).replace(
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1).replace(
-			'?', str(hourMax, 1).replace(
-			'?', str(hourMin, 1).replace(
-			'?', str(dayMax, 1).replace(
-			'?', str(dayMin, 1)
+			'?', str(hourMax), 1).replace(
+			'?', str(hourMin), 1).replace(
+			'?', str(dayMax), 1).replace(
+			'?', str(dayMin), 1)
 
 		cur = g.db.cursor()
 		cur.execute(query)
@@ -227,6 +227,7 @@ def getHeatmapData():
 		if (south_west['long'] < north_east['long']):
 			longMax = north_east['long']
 			longMin = south_west['long']
+
 		hourMax = dayHours[1][1]
 		hourMin = dayHours[0][1]
 		dayMax = dayHours[1][0]
@@ -243,10 +244,10 @@ def getHeatmapData():
 			'?', str(latMin-0.002), 1).replace(
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1).replace(
-			'?', str(hourMax, 1).replace(
-			'?', str(hourMin, 1).replace(
-			'?', str(dayMax, 1).replace(
-			'?', str(dayMin, 1)
+			'?', str(hourMax), 1).replace(
+			'?', str(hourMin), 1).replace(
+			'?', str(dayMax), 1).replace(
+			'?', str(dayMin), 1)
 		print(query)
 		return json.dumps([
 			dict(lat=40.645320892333984, long=-73.7768783569336),

@@ -50,7 +50,7 @@ function regenerateBarCharts() {
 // A bar has been clicked -> add to / remove from its array
 // name: "year", "month" or "week"
 function handleNewBarElement(barData, name) {
-	if (name == "year") {
+	if (!name || name == "year") {
 		if (barData['clicked']) {
 			selectedYears.push(barData['index'])
 		} else {
