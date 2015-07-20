@@ -60,6 +60,7 @@ rect.mouseListener {
 	height: 302px;
 	fill: none; /* TODO Test with transparent */
 	pointer-events: all;
+	cursor: pointer;
 }
 
 .domain {

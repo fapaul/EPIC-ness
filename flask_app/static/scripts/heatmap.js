@@ -41,7 +41,7 @@ function enableHeatmapControl() {
 	$('#map-canvas').css('opacity', 1)
 }
 
-function heatmapCallback(data){
+function regenerateHeatmapLayer(data){
 	data = JSON.parse(data)
 	heatLayer = []
 	for(var i = 0; i < data.length; i++){

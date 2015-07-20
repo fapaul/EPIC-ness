@@ -50,7 +50,7 @@ function enableCalmapControl() {
 	$('#cal-heatmap').css('opacity', 1)
 }
 
-function calmapCallback(calmapData) {
+function regenerateCalmap(calmapData) {
 	var changedData = JSON.parse(calmapData)
 	cal.update(changedData)
 	cal.options.data = changedData

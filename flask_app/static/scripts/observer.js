@@ -32,16 +32,12 @@ $(function initObserver() {
 // -- Variable updates --------------------------------------- //
 
 function changeBarchartSelection(barData) {
-	var name // Different behavior for each barchart
-	if (barData != null) {
-		// "year", "month" or "week"
-		name = Object.keys(barData)[0]
-	} else {
-		// Default value for updating all barcharts
-		name = "year"
-	}
+	// Different behavior for each barchart ("year", "moth" or "week")
+	var name = (barData != null) ? Object.keys(barData)[0] : "year"
+
 	// Store clicked element
 	handleNewBarElement(barData, name)
+
 	// Update whole frontend (barcharts, heatmap, calmap)
 	updateBarCharts(name)
 		.then(function(){
@@ -129,6 +125,7 @@ function updateBarCharts(name, dontWait) {
 	debugLog('Update Barcharts')
   var defer = Q.defer()
 	var delay = (barchartsCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
+
 	setTimeout(function(myID){
 		// Check ID
 		if (myID == barchartsCallID) {
@@ -190,7 +187,7 @@ function updateHeatmap(dontWait) {
 						"NorthEast": northEast
 					},
 					success: function(data) {
-						heatmapCallback(data)
+						regenerateHeatmapLayer(data)
 						releaseLock()
 						defer.resolve()
 					}
@@ -231,7 +228,7 @@ function updateCalmap(dontWait) {
 						"NorthEast": northEast
 					},
 					success: function(data) {
-						calmapCallback(data)
+						regenerateCalmap(data)
 						releaseLock()
 						defer.resolve()
 					}

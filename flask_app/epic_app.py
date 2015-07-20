@@ -180,6 +180,9 @@ def getHeatmapData():
 		hourMin = dayHours[0][1]
 		dayMax = dayHours[1][0]
 		dayMin = dayHours[0][0]
+		print(dayHours)
+		print(dayMax)
+		print(dayMin)
 
 		# Query results including params
 		query = open('./queries/frontend/heatmap/getHeatmapPositions.sql').read()
