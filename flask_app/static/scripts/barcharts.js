@@ -1,37 +1,22 @@
-function loadBarchartsData() {
-	years = selectedYears.map(function(index){return yearData[index]['year']})
-	months = selectedMonths.map(function(index){return (index+1)+""})
-	$.ajax({
-		type: "POST",
-		url: "/getYearsCount",
-		data: {"years[]": years, "months[]": months},
-		success: receiveData
-	})
+
+function initBarcharts() {
+	barchartsCallback(JSON.stringify({
+		'years': [0,0,0,0],
+		'months': [0,0,0,0,0,0,0,0,0,0,0,0],
+		'weeks': [0,0,0,0,0]
+	}))
 }
 
-function receiveData(data) {
-	data = JSON.parse(data)
-	newYearsData = data['years']
-	newMonthsData = data['months']
-	newWeeksData = data['weeks']
+function disableBarchartsControl() {
+	$('#barchart-1').css('opacity', 0.5)
+	$('#barchart-2').css('opacity', 0.5)
+	$('#barchart-3').css('opacity', 0.5)
+}
 
-	yearData = []
-	monthData = []
-	weekData = []
-	for(var i = 0; i < newYearsData.length; i++) {
-		yearData.push({"year": (2010+i)+"", "value": newYearsData[i]+""})
-	}
-	for(var i = 0; i < newMonthsData.length; i++) {
-		monthData.push({"month": (1+i)+"", "value": newMonthsData[i]+""})
-	}
-	for(var i = 0; i < newWeeksData.length; i++) {
-		weekData.push({"week": (1+i)+"", "value": newWeeksData[i]+""})
-	}
-
-	displayBarChart(yearData, 'barchart-1')
-	displayBarChart(monthData, 'barchart-2')
-	displayBarChart(weekData, 'barchart-3')
-	updateSelectionView()
+function enableBarchartsControl() {
+	$('#barchart-1').css('opacity', 1)
+	$('#barchart-2').css('opacity', 1)
+	$('#barchart-3').css('opacity', 1)
 }
 
 function updateSelectionView() {
@@ -86,7 +71,47 @@ function handleNewBarElement(barData, name) {
 	}
 }
 
+// --- Ajax Updates & Callbacks --------------------------------------------- //
+
+function loadBarchartsData() {
+	var defer = Q.defer()
+	years = selectedYears.map(function(index){return yearData[index]['year']})
+	months = selectedMonths.map(function(index){return (index+1)+""})
+	$.ajax({
+		type: "POST",
+		url: "/getYearsCount",
+		data: {"years[]": years, "months[]": months},
+		success: function(data) {
+			barchartsCallback(data)
+			defer.resolve()
+		}
+	})
+	return defer.promise
+}
+
+function barchartsCallback(data) {
+	data = JSON.parse(data)
+	newYearsData = data['years']
+	newMonthsData = data['months']
+	newWeeksData = data['weeks']
+
+	yearData = []
+	monthData = []
+	weekData = []
+	for(var i = 0; i < newYearsData.length; i++) {
+		yearData.push({"year": (2010+i)+"", "value": newYearsData[i]+""})
+	}
+	for(var i = 0; i < newMonthsData.length; i++) {
+		monthData.push({"month": (1+i)+"", "value": newMonthsData[i]+""})
+	}
+	for(var i = 0; i < newWeeksData.length; i++) {
+		weekData.push({"week": (1+i)+"", "value": newWeeksData[i]+""})
+	}
+	regenerateBarCharts()
+}
+
 function updateMonthsWeeks(selYears, selMonths) {
+	var defer = Q.defer()
 	// TODO(4): Export mapping to external function (because of several uses)
 	years = selYears.map(function(index){return yearData[index]['year']})
 	months = selMonths.map(function(index){return monthData[index]['month']})
@@ -94,8 +119,12 @@ function updateMonthsWeeks(selYears, selMonths) {
 		type: "POST",
 		url: "/getMonthsCount",
 		data: {"years[]": years, "months[]": months},
-		success: receiveMonthsWeeksData
+		success: function(data) {
+			receiveMonthsWeeksData(data)
+			defer.resolve()
+		}
 	})
+	return defer.promise
 }
 
 function receiveMonthsWeeksData(data) {
@@ -109,18 +138,22 @@ function receiveMonthsWeeksData(data) {
 		weekData[i]['value'] = newWeeksData[i]+""
 	}
 	regenerateBarCharts()
-	releaseLock()
 }
 
 function updateWeeks(selYears, selMonths) {
+	var defer = Q.defer()
 	years = selYears.map(function(index){return yearData[index]['year']})
 	months = selMonths.map(function(index){return monthData[index]['month']})
 	$.ajax({
 		type: "POST",
 		url: "/getWeeksCount",
 		data: {"years[]": years, "months[]": months},
-		success: receiveWeeksData
+		success: function(data) {
+			receiveWeeksData(data)
+			defer.resolve()
+		}
 	})
+	return defer.promise
 }
 
 function receiveWeeksData(newWeeksData) {
@@ -129,5 +162,4 @@ function receiveWeeksData(newWeeksData) {
 		weekData[i]['value'] = newWeeksData[i]+""
 	}
 	regenerateBarCharts()
-	releaseLock()
 }

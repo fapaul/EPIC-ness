@@ -1,4 +1,5 @@
 var UPDATE_DELAY = 3 // Seconds (waiting after input)
+var DEBUG = false
 
 var yearData = [{'year': '2010'}, {'year': '2011'}, {'year': '2012'}, {'year': '2013'}],
 	monthData = [{'month': 1}],
@@ -11,27 +12,21 @@ var selectedYears = [1],
 var northEast,
 	southWest
 
-var calmapSelection = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 15]]
+var calmapSelection = [[1, 0], [7, 23]] // From Monday 0:00 'til Sunday 23:00
 
 var locked = false
-
 
 // --- OBSERVER ---------------------------------------------- //
 
 $(function initObserver() {
-	origDelay = UPDATE_DELAY
-	UPDATE_DELAY = 0
-
 	// Barcharts
-	loadBarchartsData();
-
-	// Heatmap
-	initHeatmap();
+	initBarcharts() // Generates barcharts with empty data
 
 	// Calmap
-	displayCalMap();
+	displayCalmap() // Generates calmap with empty data
 
-	UPDATE_DELAY = origDelay
+	// Heatmap
+	initHeatmap() // Generates heatmap with an event listener (->First query)
 })
 
 // -- Variable updates --------------------------------------- //
@@ -44,36 +39,61 @@ function changeBarchartSelection(barData) {
 	handleNewBarElement(barData, name)
 	// Update Barcharts (abhängig vom angeklickten Diagramm)
 	updateBarCharts(name)
-	updateHeatMap()
-	updateCalMap()
+		.then(function(){return updateHeatmap(true)}, debugRejectLog)
+		.then(function(){return updateCalmap(true)}, debugRejectLog)
 }
 
+var firstTime = true
 function setHeatmapBounds(northEastBound, southWestBound) {
-	southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
-	northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
-	updateHeatMap()
-	updateCalMap()
+	// Because of multiple calls by the event listener check for changes
+	if (!southWest || !northEast ||
+			southWest.lat != southWestBound.A || southWest.long != southWestBound.F ||
+			northEast.lat != northEastBound.A || northEast.long != northEastBound.F) {
+		southWest = {'lat': southWestBound.A, 'long': southWestBound.F}
+		northEast = {'lat': northEastBound.A, 'long': northEastBound.F}
+		updateHeatmap()
+			.then(function(){return updateCalmap(true)}, debugRejectLog)
+			.then(function(){
+				if (firstTime) {
+					firstTime = false
+					if (requestLock()) {
+						loadBarchartsData()
+							.then(releaseLock, debugRejectLog)
+					}
+				}
+			}, debugRejectLog)
+	}
 }
 
-function setCalmapSelection(highlighted) {
-	// TODO: Save elements in highlighted in a global variable in observer.js
-	// Example: calmapSelection = [[1, 18], [2, 18]] -> Montag und Dienstag um 18:00 Uhr
-	updateHeatMap();
+function setCalmapSelection(selCells) {
+	// Only save first and last entry, because the selected cells form a rectangle
+	calmapSelection = [selCells[0], selCells[selCells.length-1]]
+	updateHeatmap()
 }
 
 function requestLock() {
 	if (locked) {
 		return false
 	} else {
-		//console.log('! Actions locked !')
+		debugLog('! Actions locked !')
+		disableHeatmapControl()
+		disableCalmapControl()
+		disableBarchartsControl()
 		locked = true
 		return true
 	}
 }
 
+function isLocked() {
+	return locked
+}
+
 function releaseLock() {
 	if (locked) {
-		//console.log('! Actions lock released !')
+		debugLog('! Actions lock released !')
+		enableHeatmapControl()
+		enableCalmapControl()
+		enableBarchartsControl()
 		locked = false
 		return true
 	} else {
@@ -81,81 +101,139 @@ function releaseLock() {
 	}
 }
 
+function debugLog(str) {
+	if (DEBUG) {
+		console.log(str)
+	}
+}
+
+function debugRejectLog() {
+	if (DEBUG) {
+		console.log('QReject - Arguments: \n'+arguments.join(' \n'))
+	}
+}
+
 // --- UPDATES ----------------------------------------------- //
 
 var barchartsCallID = -1
-function updateBarCharts(name) {
+function updateBarCharts(name, dontWait) {
+	debugLog('Update Barcharts')
+  var defer = Q.defer()
+	var delay = (barchartsCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 	setTimeout(function(myID){
 		// Check ID
 		if (myID == barchartsCallID) {
-			if (name == "year") {
-				// Loads new data, reloads bar chart and releases lock
-				updateMonthsWeeks(selectedYears, selectedMonths)
-			} else if (name == "month") {
-				// Loads new data, reloads bar chart and releases lock
-				updateWeeks(selectedYears, selectedMonths)
-			} else if (name == "week") {
-			// No bar chart changes
-				releaseLock()
+			// Lock actions while loading
+			if (requestLock()) {
+				if (!name || name == "year") {
+					// Loads new data, reloads bar chart and releases lock
+					updateMonthsWeeks(selectedYears, selectedMonths)
+						.then(function(){
+							releaseLock()
+							defer.resolve()
+						}, debugRejectLog)
+				} else if (name == "month") {
+					// Loads new data, reloads bar chart and releases lock
+					updateWeeks(selectedYears, selectedMonths)
+						.then(function(){
+							releaseLock()
+							defer.resolve()
+						}, debugRejectLog)
+				} else { // if (name == "week") {
+					// No bar chart changes
+					releaseLock()
+					defer.resolve()
+				}
+			} else {
+				debugLog('Barcharts: Couldn\'t request an actions lock')
+				defer.reject()
 			}
 		} else {
-			releaseLock()
+			defer.reject()
 		}
-	}, UPDATE_DELAY * 1000, ++barchartsCallID)
+	}, delay, ++barchartsCallID)
+	return defer.promise
 }
 
 var heatmapCallID = -1
-function updateHeatMap() {
+function updateHeatmap(dontWait) {
+	debugLog('Update Heatmap')
+  var defer = Q.defer()
+	var delay = (heatmapCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 	setTimeout(function(myID){
 		// Check ID
 		if (myID == heatmapCallID) {
-			years = selectedYears.map(function(index){return yearData[index]['year']})
-			months = selectedMonths.map(function(index){return (index+1)+""})
-			weeks = selectedWeeks.map(function(index){return (index+1)+""})
-			// TODO: Get hours of days from Calmap
-			// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
-			dayHours = [[1, 18], [2, 18], [3, 18], [4, 18], [5, 16]]
+			// Lock actions while loading
+			if (requestLock()) {
+				years = selectedYears.map(function(index){return yearData[index]['year']})
+				months = selectedMonths.map(function(index){return (index+1)+""})
+				weeks = selectedWeeks.map(function(index){return (index+1)+""})
 
-			$.ajax({
-				type: "POST",
-				url: "/getHeatMapData",
-				data: {
-					"years": years,
-					"months": months,
-					"weeks": weeks,
-					"dayHours": dayHours,
-					"SouthWest": southWest,
-					"NorthEast": northEast
-				},
-				success: heatMapCallback
-			})
+				$.ajax({
+					type: "POST",
+					url: "/getHeatmapData",
+					data: {
+						"years": years,
+						"months": months,
+						"weeks": weeks,
+						"dayHours": calmapSelection,
+						"SouthWest": southWest,
+						"NorthEast": northEast
+					},
+					success: function(data) {
+						heatmapCallback(data)
+						releaseLock()
+						defer.resolve()
+					}
+				})
+			} else {
+				debugLog('Heatmap: Couldn\'t request an actions lock')
+				defer.reject()
+			}
+		} else {
+			defer.reject()
 		}
-	}, UPDATE_DELAY * 1000, ++heatmapCallID)
+	}, delay, ++heatmapCallID)
+	return defer.promise
 }
 
 var calmapCallID = -1
-function updateCalMap() {
+function updateCalmap(dontWait) {
+	debugLog('Update Calmap')
+  var defer = Q.defer();
+	var delay = (calmapCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 	setTimeout(function(myID){
 		// Check ID
 		if (myID == calmapCallID) {
-			years = selectedYears.map(function(index){return yearData[index]['year']})
-			months = selectedMonths.map(function(index){return (index+1)+""})
-			weeks = selectedWeeks.map(function(index){return (index+1)+""})
-			// TODO: Get hours of days from Calmap
-			// Example: Montag-Donnerstag um 18:00(bis 18:59) und Freitag um 16:00(bis 16:59)
-
-			$.ajax({
-				type: "POST",
-				url: "/getCalMapData",
-				data: {
-					"years": years,
-					"months": months,
-					"weeks": weeks,
-					"SouthWest": southWest,
-					"NorthEast": northEast
-				},
-				success: calmapCallback
-			})
+			// Lock actions while loading
+			if (requestLock()) {
+				years = selectedYears.map(function(index){return yearData[index]['year']})
+				months = selectedMonths.map(function(index){return (index+1)+""})
+				weeks = selectedWeeks.map(function(index){return (index+1)+""})
+				
+				$.ajax({
+					type: "POST",
+					url: "/getCalmapData",
+					data: {
+						"years": years,
+						"months": months,
+						"weeks": weeks,
+						"SouthWest": southWest,
+						"NorthEast": northEast
+					},
+					success: function(data) {
+						calmapCallback(data)
+						releaseLock()
+						defer.resolve()
+					}
+				})
+			} else {
+				debugLog('Calmap: Couldn\'t request an actions lock')
+				defer.reject()
+			}
+		} else {
+			defer.reject()
 		}
-	}, UPDATE_DELAY * 1000, ++calmapCallID)
+	}, delay, ++calmapCallID)
+	return defer.promise
 }

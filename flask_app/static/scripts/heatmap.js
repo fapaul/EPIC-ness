@@ -1,6 +1,8 @@
 var googlemap;
 var heatmap;
-var boundsChanged = false;
+var calledForFirstTime = false;
+var mapLocked = false;
+
 function initHeatmap() {
 	google.maps.event.addDomListener(window, 'load', function() {
 		var newYorkCity = new google.maps.LatLng(40.76103210449219, -73.97576141357422);
@@ -11,14 +13,35 @@ function initHeatmap() {
 		  mapTypeId: google.maps.MapTypeId.SATELLITE,
 		  disableDefaultUI: true
 		})
-		google.maps.event.addListener(googlemap, 'bounds_changed', function(){boundsChanged = true})
-		google.maps.event.addListener(googlemap, 'idle', adjustBoundsData)
+		google.maps.event.addListener(googlemap, 'bounds_changed', adjustBoundsData)
+		google.maps.event.addListener(googlemap, 'tilesloaded', function(){
+			if (!calledForFirstTime) { // Hide "Nutzungsbedingungen", etc. (might be illegal)
+				$('.gmnoprint').css('display', 'none')
+				$('.gm-style-cc').css('display','none')
+				calledForFirstTime = true
+			}
+		})
 
-		// heatMapDummy(); // TODO: Durch Backend implementierung ersetzen
 	});
 }
 
-function heatMapCallback(data){
+function disableHeatmapControl() {
+	if (googlemap) {
+		googlemap.set('draggable', false);
+		googlemap.set('scrollwheel', false);
+		googlemap.set('disableDoubleClickZoom', false);
+	}
+	$('#map-canvas').css('opacity', 0.5)
+}
+
+function enableHeatmapControl() {
+	googlemap.set('draggable', true);
+	googlemap.set('scrollwheel', true);
+	googlemap.set('disableDoubleClickZoom', true);
+	$('#map-canvas').css('opacity', 1)
+}
+
+function heatmapCallback(data){
 	data = JSON.parse(data)
 	heatLayer = []
 	for(var i = 0; i < data.length; i++){
@@ -33,11 +56,7 @@ function heatMapCallback(data){
 }
 
 function adjustBoundsData(){
-	if (boundsChanged == true){
 		var southWestBound = googlemap.getBounds().getSouthWest()
 		var northEastBound = googlemap.getBounds().getNorthEast()
 		setHeatmapBounds(southWestBound, northEastBound)
-		boundsChanged = false
-	}
 }
-
