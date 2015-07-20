@@ -90,7 +90,6 @@ function storeCalmapCells() {
 						'day': parseInt(day),
 						'hour': parseInt(hour)
 					})
-					//console.log(x + '|' + y + ' -> ' + day + ',' + hour)
 				} else {
 					console.log('regex failed on:', dateStr)
 				}
