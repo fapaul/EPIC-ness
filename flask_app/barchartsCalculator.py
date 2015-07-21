@@ -3,7 +3,6 @@ import json
 def queryYears(db, isDummy, months, years):
 	print('Executing years query...')
 	if (not isDummy):
-		#FIXME: Not working in Windows -> Use Dummy Data
 		query = open('./queries/frontend/barcharts/getYearsTotal.sql').read()
 		query = query.replace('?', '('+(','.join(years))+')')
 
@@ -23,7 +22,6 @@ def queryYears(db, isDummy, months, years):
 def queryMonths(db, isDummy, months, years):
 	print('Executing months query...')
 	if (not isDummy):
-		#FIXME: Not working in Windows -> Use Dummy Data
 		query = open('./queries/frontend/barcharts/getMonthsTotal.sql').read()
 		query = query.replace('?', '('+(','.join(years))+')')
 
@@ -95,7 +93,6 @@ def queryMonths(db, isDummy, months, years):
 def queryWeeks(db, isDummy, months, years):
 	print('Executing weeks query...')
 	if (not isDummy):
-		#FIXME: Not working in Windows -> Use Dummy Data
 		query = open('./queries/frontend/barcharts/getWeeksTotal.sql').read()
 		query = query.replace('?', '('+(','.join(years))+')', 1)
 		query = query.replace('?', '('+(','.join(months))+')', 1)

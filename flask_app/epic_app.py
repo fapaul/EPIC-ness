@@ -193,7 +193,7 @@ def getHeatmapData():
 			print(dayMin)
 
 		# Query results including params
-		query = open('./queries/frontend/heatmap/getHeatmapPositions.sql').read()
+		query = open('./queries/frontend/heatmap/getHeatMapPositions.sql').read()
 
 		# TODO: Check if years, months or weeks is null
 		query = query.replace('?', '('+(','.join(years))+')', 1).replace(

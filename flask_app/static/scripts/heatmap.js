@@ -16,8 +16,10 @@ function initHeatmap() {
 		google.maps.event.addListener(googlemap, 'bounds_changed', adjustBoundsData)
 		google.maps.event.addListener(googlemap, 'tilesloaded', function(){
 			if (!calledForFirstTime) { // Hide "Nutzungsbedingungen", etc. (might be illegal)
-				$('.gmnoprint').css('display', 'none')
-				$('.gm-style-cc').css('display','none')
+				setTimeout(function(){
+					$('.gmnoprint').css('display', 'none')
+					$('.gm-style-cc').css('display','none')
+				}, 3000)
 				calledForFirstTime = true
 			}
 		})

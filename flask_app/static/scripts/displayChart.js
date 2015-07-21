@@ -66,7 +66,8 @@ function displayBarChart(chartData, divName) {
 		.attr('class', 'd3-tip')
 		.offset([-10, 0])
 		.html(function(d) {
-			return intToReadableString(d[value]);
+			// Use intToReadableString for adding thousand markers
+			return parseFloat(d[value]).toFixed(3);
 		})
 
 	svg.call(tip);
