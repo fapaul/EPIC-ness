@@ -64,6 +64,8 @@ function setHeatmapBounds(northEastBound, southWestBound) {
 					if (requestLock()) {
 						loadBarchartsData()
 							.then(releaseLock, debugRejectLog)
+					} else {
+						debugLog('Loading barcharts failed (cant request lock)')
 					}
 				}
 			}, debugRejectLog)
