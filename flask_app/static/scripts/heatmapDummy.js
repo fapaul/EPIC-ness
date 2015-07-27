@@ -105,4 +105,20 @@ function heatMapDummy(){
 	  data: heatmapData
 	});
 	heatmap.setMap(googlemap);
+	customGradients();
+}
+
+// set the color of the Heatmap to the same ones as of the Calmap
+function customGradients() {
+	var gradient = [
+	'rgba(88, 150, 94, 1)',
+	'rgba(175, 215, 179, 1)',
+	'rgba(146, 213, 152, 1)',
+	'rgba(102, 202, 111, 1)',
+	'rgba(74, 173, 83, 1)',
+	'rgba(35, 144, 45, 1)',
+	'rgba(14, 115, 23, 1)',
+	'rgba(8, 74, 15, 1)'
+	]
+	heatmap.set('gradient', gradient);
 }
