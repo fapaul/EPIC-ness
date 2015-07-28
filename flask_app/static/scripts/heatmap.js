@@ -60,15 +60,19 @@ function regenerateHeatmapLayer(data){
 }
 
 function adjustBoundsData(){
+	// check if the new viewport is contained by the old one.
+	var oldView = [], newView = []
+	if (!northEast || !southWest || true) { //|| rectsIntersect(oldView, newView) {
 		var southWestBound = googlemap.getBounds().getSouthWest()
 		var northEastBound = googlemap.getBounds().getNorthEast()
 		setHeatmapBounds(southWestBound, northEastBound)
+	}
 }
 
 // set the color of the Heatmap to the same ones as of the Calmap
 function customGradients() {
 	var gradient = [
-	'rgba(88, 150, 94, 1)',
+	'rgba(88, 150, 94, 0)',
 	'rgba(175, 215, 179, 1)',
 	'rgba(146, 213, 152, 1)',
 	'rgba(102, 202, 111, 1)',
