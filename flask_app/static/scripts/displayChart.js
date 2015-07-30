@@ -85,7 +85,6 @@ function displayBarChart(chartData, divName) {
 		.attr('width', x.rangeBand())
 		.attr('y', function(d) { return y(d[value])})
 		.attr('height', function(d) { return height - y(d[value]) }) // 50 px distance to top border
-		.attr("fill", "#88F") // fill with specific color
 		.on("click", function(d) {
 			// TODO: Visualize locking (loading gif, gray layer, bottom note, etc.)
 			// TODO: Export this function to barcharts.js

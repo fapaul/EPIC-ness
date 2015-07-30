@@ -32,25 +32,35 @@
 <body>
     <!-- Page Content -->
     <div class="container">
-
+        <center>
+          <h2 style="font-size: 35px; margin-top: 10px;">Analyzing Cab Data from New York City</h2>
+        </center>
         <!-- Heading Row -->
         <div class="row">
-            <div class="col-md-6" id="map-canvas">
-				<!-- Heatmap (Ajay) -->
-            </div>
-            <!-- /.col-md-6 -->
-            <div class="col-md-6">
-				<div id="cal-heatmap">
-					<!-- Calmap (Paul) -->
-				</div>
-            </div>
-            <!-- /.col-md-6 -->
+          <div class="col-md-6" style="width: 30%;">
+            <h4 style="margin-left: -15px; display: inline-block;">Pick up locations:</h4>
+          </div>
+          <div class="col-md-6">
+            <h4 style="margin-left: 20px; display: inline-block">Select relevant time interval:</h4>
+          </div>
+        </div>
+        <div class="row" style="padding-top: 10px">
+          <div class="col-md-6" id="map-canvas">
+				    <!-- Heatmap (Ajay) -->
+          </div>
+          <!-- /.col-md-6 -->
+          <div class="col-md-6">
+    				<div id="cal-heatmap">
+    					<!-- Calmap (Paul) -->
+    				</div>
+          </div>
+          <!-- /.col-md-6 -->
         </div>
         <!-- /.row -->
-		<br/>
+		    <h4 style="margin-left: 15px; margin-bottom: 0px; margin-top: 15px;">Average travel costs:</h4>
         <!-- Content Row -->
-        <div class="row" style="margin-top: 50px">
-			<!-- Selectable Balkendiagramm zu Jahr, Monat & Woche (Thomas) -->
+        <div class="row">
+			    <!-- Selectable Balkendiagramm zu Jahr, Monat & Woche (Thomas) -->
           <div id="barchart-1-container" class="col-md-4">
     				<div id="barchart-1">
     					<!-- Barchart of Years -->

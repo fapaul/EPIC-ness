@@ -1,10 +1,14 @@
 /* Custom css settings */
 
+@media (min-width: 1200px) {
+	.container {
+	    width: 1240px;
+	}
+}
 
 /* Heatmap */
 
 #cal-heatmap {
-	padding-top: 20px;
 	padding-left: 10px;
 }
 
@@ -57,7 +61,7 @@ rect.selection {
 
 rect.mouseListener {
 	width: 832px;
-	height: 302px;
+	height: 282px;
 	fill: none; /* TODO Test with transparent */
 	pointer-events: all;
 	cursor: pointer;
@@ -69,8 +73,13 @@ rect.mouseListener {
 	stroke-width: 1;
 }
 
+.yearBar, .monthBar, .weekBar {
+	fill: #8B8;
+  cursor: pointer
+}
+
 .highlight {
-	fill: #3A3AAB
+	fill: #383
 }
 
 .d3-tip {
@@ -111,10 +120,6 @@ rect.mouseListener {
  * For details, see http://www.apache.org/licenses/LICENSE-2.0.
  */
 
-body {
-    padding-top: 70px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
-}
-
 .navbar-fixed-top .nav {
     padding: 15px 0;
 }
@@ -125,11 +130,13 @@ body {
 
 footer {
     padding: 30px 0;
+		padding-bottom: 3px;
 }
 
-@media(min-width:768px) {
+@media (min-width:768px) {
     body {
-        padding-top: 40px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
+        padding-top: 10px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
+				font-family: "Calibri Light";
     }
 
     .navbar-fixed-top .navbar-brand {

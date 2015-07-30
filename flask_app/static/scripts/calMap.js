@@ -31,6 +31,10 @@ function displayCalmap(){
 			// Get all calmap cells with coordinates and date
 			storeCalmapCells()
 
+			// TODO: Fix legend tooltips (replace item with rides)
+			// 3.select(".graph-legend").selectAll("rect").selectAll("title").forEach(function(title,i){console.log(d3.select(title).html())})
+			// Warum undefined?
+
 			// Implement drawing a selection area
 			d3.select('svg.cal-heatmap-container').append('svg:rect')
 				.classed('mouseListener', true)
