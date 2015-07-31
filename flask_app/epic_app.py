@@ -126,7 +126,7 @@ def getCalmapData():
 			'?', str(latMin-0.002), 1).replace(
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1)
-
+		print(query)
 		cur = g.db.cursor()
 		cur.execute(query)
 		timestamps = [[row[0], row[1]] for row in cur.fetchall()]
@@ -207,7 +207,6 @@ def getHeatmapData():
 			'?', str(hourMin), 1).replace(
 			'?', str(dayMax), 1).replace(
 			'?', str(dayMin), 1)
-
 		cur = g.db.cursor()
 		cur.execute(query)
 		locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
