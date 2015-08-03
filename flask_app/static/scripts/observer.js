@@ -56,7 +56,7 @@ function setHeatmapBounds(northEastBound, southWestBound) {
 			northEast.lat != northEastBound.G || northEast.long != northEastBound.K) {
 		southWest = {'lat': southWestBound.G, 'long': southWestBound.K}
 		northEast = {'lat': northEastBound.G, 'long': northEastBound.K}
-
+		
 		updateHeatmap()
 			.then(function(){return updateCalmap(true)}, debugRejectLog)
 			.then(function(){

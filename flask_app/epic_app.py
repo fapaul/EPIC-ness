@@ -134,7 +134,7 @@ def getCalmapData():
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1)
 		print(query)
-
+		
 		cur = g.db.cursor()
 		cur.execute(query)
 		timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
