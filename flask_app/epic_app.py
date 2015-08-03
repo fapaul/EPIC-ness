@@ -4,7 +4,8 @@ from secret_key import SECRET
 import pyhdb
 import json
 import datetime
-from barchartsCalculator import queryYears, queryMonths, queryWeeks
+import time
+from barchartsCalculator import queryYears, queryMonths, queryWeeks, createYearsCheck #TODO: ,queryCalmap, queryHeatmap
 
 #TODO: Store dummy data in json files (heatmap, barcharts, calmap)
 
@@ -99,11 +100,16 @@ def getCalmapData():
 		years = requestObj.getlist('years[]');
 		months = requestObj.getlist('months[]');
 		weeks = requestObj.getlist('weeks[]');
-		dayHours = requestObj.getlist('dayHours[]');
 		south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
 					'long': float(requestObj.get('SouthWest[long]'))}
 		north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
 	 				'long': float(requestObj.get('NorthEast[long]'))}
+
+		i = 0;
+		dayHours = [];
+		while(requestObj.getlist('dayHours['+str(i)+'][]')):
+			dayHours.append(requestObj.getlist('dayHours['+str(i)+'][]'))
+			i += 1
 
 		latMax = south_west['lat']
 		latMin = north_east['lat']
@@ -118,18 +124,20 @@ def getCalmapData():
 		# Query results including params
 		query = open('./queries/frontend/calmap/getCalmapData.sql').read()
 
-		# TODO: Check if years, months or weeks is null
-		query = query.replace('?', '('+(','.join(years))+')', 1).replace(
+		# TODO: Check if months or weeks is null
+		yearsCheck = createYearsCheck(years)
+		query = query.replace('?', yearsCheck, 1).replace(
 			'?', '('+(','.join(months))+')', 1).replace(
 			'?', '('+(','.join(weeks))+')', 1).replace(
 			'?', str(latMax+0.002), 1).replace(
 			'?', str(latMin-0.002), 1).replace(
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1)
+		print(query)
 
 		cur = g.db.cursor()
 		cur.execute(query)
-		timestamps = [[row[0], row[1]] for row in cur.fetchall()]
+		timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
 
 		monday = 946854000
 		sec_per_day = 86400
@@ -139,10 +147,8 @@ def getCalmapData():
 		result = dict()
 		for timestamp in timestamps:
 			key = timestamp[1] * sec_per_day + monday + sec_per_hour * timestamp[0] + sec_per_minute * 30
-			if key in result:
-				result[key] += 1
-			else:
-				result[key] = 1
+			result[key] = timestamp[2]
+
 		return Response(json.dumps(result))
 	else:
 		resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
@@ -195,8 +201,9 @@ def getHeatmapData():
 		# Query results including params
 		query = open('./queries/frontend/heatmap/getHeatMapPositions.sql').read()
 
-		# TODO: Check if years, months or weeks is null
-		query = query.replace('?', '('+(','.join(years))+')', 1).replace(
+		# TODO: Check if months or weeks is null
+		yearsCheck = createYearsCheck(years)
+		query = query.replace('?', yearsCheck, 1).replace(
 			'?', '('+(','.join(months))+')', 1).replace(
 			'?', '('+(','.join(weeks))+')', 1).replace(
 			'?', str(latMax+0.002), 1).replace(
@@ -207,14 +214,15 @@ def getHeatmapData():
 			'?', str(hourMin), 1).replace(
 			'?', str(dayMax), 1).replace(
 			'?', str(dayMin), 1)
+		print(query)
 
 		cur = g.db.cursor()
 		cur.execute(query)
-		locations = [dict(lat=row[0], long=row[1]) for row in cur.fetchall()]
+		locations = [dict(lat=row[0], long=row[1], count=row[2]) for row in cur.fetchall()]
 
-		return json.dumps(locations)
+		return Response(json.dumps(locations))
 	else:
-		return json.dumps([
+		return Response(json.dumps([
 			dict(lat=40.645320892333984, long=-73.7768783569336),
 			dict(lat=40.72430419921875, long=-73.9999008178711),
 			dict(lat=40.762916564941406, long=-73.99524688720703),
@@ -228,7 +236,7 @@ def getHeatmapData():
 			dict(lat=40.78850555419922, long=-73.94905853271484),
 		 	dict(lat=40.72579574584961, long=-73.9828872680664),
 			dict(lat=40.72705078125, long=-73.99354553222656),
-		 	dict(lat=40.74961853027344, long=-73.99532318115234)])
+		 	dict(lat=40.74961853027344, long=-73.99532318115234)]))
 
 if __name__ == '__main__':
 	app.run()

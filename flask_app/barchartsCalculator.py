@@ -25,7 +25,6 @@ def queryYears(db, isDummy, months, years):
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getYearsTotal.sql').read()
 		print(query)
-		return 'Test'
 
 		cur = db.cursor()
 		cur.execute(query)
@@ -47,7 +46,6 @@ def queryMonths(db, isDummy, months, years):
 		yearsCheck = createYearsCheck(years)
 		query = query.replace('?', yearsCheck, 1)
 		print(query)
-		return 'Test'
 
 		cur = db.cursor()
 		cur.execute(query)
@@ -122,7 +120,6 @@ def queryWeeks(db, isDummy, months, years):
 		query = query.replace('?', yearsCheck, 1)
 		query = query.replace('?', '('+(','.join(months))+')', 1)
 		print(query)
-		return 'Test'
 
 		cur = db.cursor()
 		cur.execute(query)
@@ -153,3 +150,11 @@ def queryWeeks(db, isDummy, months, years):
 			weeksCount[4] += 1536192
 
 		return weeksCount
+
+def queryCalmap(db, isDummy, years, months, weeks, dayHours, southWest, northEast):
+	# Add calmap calculations here
+	raise Exception('Not implemented')
+
+def queryHeatmap(db, isDummy, years, months, weeks, southWest, northEast):
+	# Add calmap calculations here
+	raise Exception('Not implemented')
