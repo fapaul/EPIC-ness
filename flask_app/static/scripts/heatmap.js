@@ -49,24 +49,59 @@ function regenerateHeatmapLayer(data){
 	heatLayer = []
 	for(var i = 0; i < data.length; i++){
 		var current = data[i]
-		heatLayer.push(new google.maps.LatLng(current.lat, current.long))
+		console.log(current.count)
+		heatLayer.push({location: new google.maps.LatLng(current.lat, current.long), weight: current.count})
 	}
 	if (heatmap) heatmap.setMap(null)
 	heatmap = new google.maps.visualization.HeatmapLayer({
-		data: heatLayer
+		data: heatLayer,
+		gradient: [
+		'rgba(88, 150, 94, 0)',
+		'rgba(175, 215, 179, 1)',
+		'rgba(146, 213, 152, 1)',
+		'rgba(102, 202, 111, 1)',
+		'rgba(74, 173, 83, 1)',
+		'rgba(35, 144, 45, 1)',
+		'rgba(14, 115, 23, 1)',
+		'rgba(8, 74, 15, 1)'
+		]
 	})
 	heatmap.setMap(googlemap)
-	customGradients()
+	//customGradients()
 }
 
+// x: Lat steigt nach oben (um 40.6)
+// y: Long steigt nach rechts (um -73,8)
 function adjustBoundsData(){
 	// check if the new viewport is contained by the old one.
-	var oldView = [], newView = []
-	if (!northEast || !southWest || true) { //|| rectsIntersect(oldView, newView) {
-		var southWestBound = googlemap.getBounds().getSouthWest()
-		var northEastBound = googlemap.getBounds().getNorthEast()
-		setHeatmapBounds(southWestBound, northEastBound)
+	var southWestBound = googlemap.getBounds().getSouthWest()
+	var northEastBound = googlemap.getBounds().getNorthEast()
+	var newSouthWest = {'lat': southWestBound.G, 'long': southWestBound.K}
+	var newNorthEast = {'lat': northEastBound.G, 'long': northEastBound.K}
+	var newView = null, oldView = null
+	if (northEast && southWest) {
+		var newView = [[newSouthWest.long,	//x1
+										newNorthEast.lat],	//y1
+									 [newNorthEast.long,	//x2
+										newSouthWest.lat]]	//y2
+		var oldView = [[southWest.long,			//x3
+										northEast.lat],		//y3
+								   [northEast.long,			//x4
+								  	southWest.lat]]		//y4
 	}
+
+	if (newView != null && oldView != null && rectIsInRect(newView, oldView)) {
+		heatmapCallID++ // Dont update heatmap data
+	} else {
+		setHeatmapBounds(newNorthEast, newSouthWest)
+	}
+}
+
+function rectIsInRect(rect1, rect2) {
+	// [[x1, y1], [x2, y2]], [[x3, y3], [x4, y4]]
+	// console.log(rect1, rect2, (rect1[0][0] >= rect2[0][0]), (rect1[1][0] <= rect2[1][0]),	(rect1[0][1] <= rect2[0][1]), (rect1[1][1] >= rect2[1][1]))
+	return (rect1[0][0] >= rect2[0][0] && rect1[1][0] <= rect2[1][0]) &&
+				(rect1[0][1] <= rect2[0][1] && rect1[1][1] >= rect2[1][1])
 }
 
 // set the color of the Heatmap to the same ones as of the Calmap

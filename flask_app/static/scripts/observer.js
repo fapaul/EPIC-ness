@@ -52,12 +52,14 @@ var firstTime = true
 function setHeatmapBounds(northEastBound, southWestBound) {
 	// Check for changes because of multiple calls by the event listener
 	if (!southWest || !northEast ||
-			southWest.lat != southWestBound.G || southWest.long != southWestBound.K ||
-			northEast.lat != northEastBound.G || northEast.long != northEastBound.K) {
-		southWest = {'lat': southWestBound.G, 'long': southWestBound.K}
-		northEast = {'lat': northEastBound.G, 'long': northEastBound.K}
-		
-		updateHeatmap()
+			southWest.lat != southWestBound.lat || southWest.long != southWestBound.long ||
+			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
+
+		updateHeatmap().then(function(){
+			southWest = {'lat': southWestBound.lat, 'long': southWestBound.long}
+			northEast = {'lat': northEastBound.lat, 'long': northEastBound.long}
+		})
+		/*
 			.then(function(){return updateCalmap(true)}, debugRejectLog)
 			.then(function(){
 				if (firstTime) {
@@ -70,6 +72,7 @@ function setHeatmapBounds(northEastBound, southWestBound) {
 					}
 				}
 			}, debugRejectLog)
+		*/
 	}
 }
 

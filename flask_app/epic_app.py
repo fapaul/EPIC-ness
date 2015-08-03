@@ -11,7 +11,7 @@ from barchartsCalculator import queryYears, queryMonths, queryWeeks, createYears
 
 #configuration
 DEBUG = False
-DUMMY = False
+DUMMY = True
 SECRET_KEY = SECRET
 USERNAME = flask_user
 PASSWORD = flask_password
@@ -134,7 +134,7 @@ def getCalmapData():
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1)
 		print(query)
-		
+
 		cur = g.db.cursor()
 		cur.execute(query)
 		timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
@@ -223,20 +223,20 @@ def getHeatmapData():
 		return Response(json.dumps(locations))
 	else:
 		return Response(json.dumps([
-			dict(lat=40.645320892333984, long=-73.7768783569336),
-			dict(lat=40.72430419921875, long=-73.9999008178711),
-			dict(lat=40.762916564941406, long=-73.99524688720703),
-			dict(lat=40.747989654541016, long=-73.97357940673828),
-			dict(lat=40.68174362182617, long=-73.98006439208984),
-			dict(lat=40.774208068847656, long=-73.87296295166016),
-			dict(lat=40.75990676879883, long=-73.99391174316406),
-			dict(lat=40.76718521118164, long=-73.99007415771484),
-			dict(lat=40.645050048828125, long=-73.79256439208984),
-			dict(lat=40.751739501953125, long=-73.89812469482422),
-			dict(lat=40.78850555419922, long=-73.94905853271484),
-		 	dict(lat=40.72579574584961, long=-73.9828872680664),
-			dict(lat=40.72705078125, long=-73.99354553222656),
-		 	dict(lat=40.74961853027344, long=-73.99532318115234)]))
+			dict(lat=40.645320892333984, long=-73.7768783569336, count=1000),
+			dict(lat=40.72430419921875, long=-73.9999008178711, count=50),
+			dict(lat=40.762916564941406, long=-73.99524688720703, count=30),
+			dict(lat=40.747989654541016, long=-73.97357940673828, count= 500),
+			dict(lat=40.68174362182617, long=-73.98006439208984, count=3),
+			dict(lat=40.774208068847656, long=-73.87296295166016, count=2),
+			dict(lat=40.75990676879883, long=-73.99391174316406, count=10000),
+			dict(lat=40.76718521118164, long=-73.99007415771484, count=53),
+			dict(lat=40.645050048828125, long=-73.79256439208984, count=100),
+			dict(lat=40.751739501953125, long=-73.89812469482422, count=900),
+			dict(lat=40.78850555419922, long=-73.94905853271484, count=6000),
+		 	dict(lat=40.72579574584961, long=-73.9828872680664, count=10000),
+			dict(lat=40.72705078125, long=-73.99354553222656, count=200),
+		 	dict(lat=40.74961853027344, long=-73.99532318115234, count=5)]))
 
 if __name__ == '__main__':
 	app.run()
