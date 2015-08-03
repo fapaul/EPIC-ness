@@ -1,10 +1,31 @@
 import json
 
+def createYearsCheck(years):
+	if (years is None or len(years) == 0):
+		years = [2011, 2012, 2013, 2014]
+
+	yearsString = "("
+	prevYear = 0
+	for i in range(len(years)):
+		year = int(years[i])
+		if prevYear + 1 != year:
+			if i > 0:
+				yearsString += " OR "
+			yearsString += "(PICKUP_TIME BETWEEN TO_DATE('"+str(year)+"-01-01', 'YYYY-MM-DD') AND TO_DATE('"+str(year)+"-12-31', 'YYYY-MM-DD'))"
+		else:
+			lastDatePos = yearsString.index(str(prevYear)+"-12-31")
+			yearsString = yearsString[:lastDatePos] + str(year)+"-12-31" + yearsString[lastDatePos+10:]
+		prevYear = year
+	yearsString += ")"
+
+	return yearsString
+
 def queryYears(db, isDummy, months, years):
 	print('Executing years query...')
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getYearsTotal.sql').read()
-		query = query.replace('?', '('+(','.join(years))+')')
+		print(query)
+		return 'Test'
 
 		cur = db.cursor()
 		cur.execute(query)
@@ -23,7 +44,10 @@ def queryMonths(db, isDummy, months, years):
 	print('Executing months query...')
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getMonthsTotal.sql').read()
-		query = query.replace('?', '('+(','.join(years))+')')
+		yearsCheck = createYearsCheck(years)
+		query = query.replace('?', yearsCheck, 1)
+		print(query)
+		return 'Test'
 
 		cur = db.cursor()
 		cur.execute(query)
@@ -94,8 +118,11 @@ def queryWeeks(db, isDummy, months, years):
 	print('Executing weeks query...')
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getWeeksTotal.sql').read()
-		query = query.replace('?', '('+(','.join(years))+')', 1)
+		yearsCheck = createYearsCheck(years)
+		query = query.replace('?', yearsCheck, 1)
 		query = query.replace('?', '('+(','.join(months))+')', 1)
+		print(query)
+		return 'Test'
 
 		cur = db.cursor()
 		cur.execute(query)

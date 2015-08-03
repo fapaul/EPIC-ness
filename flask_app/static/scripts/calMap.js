@@ -31,9 +31,20 @@ function displayCalmap(){
 			// Get all calmap cells with coordinates and date
 			storeCalmapCells()
 
-			// TODO: Fix legend tooltips (replace item with rides)
-			// 3.select(".graph-legend").selectAll("rect").selectAll("title").forEach(function(title,i){console.log(d3.select(title).html())})
-			// Warum undefined?
+			// Fix legend tooltips (replace item with rides)
+			d3.select(".graph-legend")
+				.selectAll("rect")
+				.selectAll("title")
+				.each(
+					function(){
+						legCatSel = d3.select(this) // Selection of the current category in the calmaps legend
+						legCatSel.html(legCatSel.html().replace("item", "ride"))
+					}
+				)
+
+			// Add title of min and max
+			//console.log(d3.select(".graph-legend").attr("width", 170))
+			//console.log(d3.select(".graph-legend").attr("width"))
 
 			// Implement drawing a selection area
 			d3.select('svg.cal-heatmap-container').append('svg:rect')
@@ -63,17 +74,6 @@ function regenerateCalmap(calmapData) {
 }
 
 // --- Selection -------------------------------------------------------------//
-
-/*
-	TODO:
-	1.) Remove onClick-Listener from calmap init function
-	2.) Add mouseDown- and mouseUp-Listener
-			- for each calmap element or
-			- for the whole svg element using the relevant mouse
-				coordinates for selecting the right calmap element
-	3.) Remove calmap array -> Send origin and extent positions
-	4.) Change query using origin and extent
-*/
 
 function storeCalmapCells() {
 	d3.select('svg.cal-heatmap-container').selectAll('svg.graph-domain').each(
