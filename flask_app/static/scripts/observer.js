@@ -17,6 +17,17 @@ var calmapSelection = [[1, 0], [7, 23]] // From Monday 0:00 'til Sunday 23:00
 
 var locked = false
 
+var loadingBar
+
+var app = angular.module('myApp', ['angular-loading-bar', 'ngAnimate'])
+  .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
+    // cfpLoadingBarProvider.includeBar = true;
+    cfpLoadingBarProvider.includeSpinner = true;
+  }])
+	.controller('ExampleCtrl', function ($scope, $http, $timeout, cfpLoadingBar) {
+		loadingBar = cfpLoadingBar
+	})
+
 // --- OBSERVER ---------------------------------------------- //
 
 $(function initObserver() {
@@ -153,11 +164,21 @@ function debugRejectLog() {
 }
 
 function showLoadingAnimation() {
-	$('.loadingAnimation').css('display','')
+	//$('.loadingAnimation').css('display','')
+	if (loadingBar.status() != 0) {
+		//loadingBar.set(0)
+		setTimeout(function(){
+			loadingBar.start()
+		}, 1000)
+	} else {
+		loadingBar.start()
+	}
 }
 
 function hideLoadingAnimation() {
-	$('.loadingAnimation').css('display','none')
+	//$('.loadingAnimation').css('display','none')
+	loadingBar.complete()
+	loadingBar.set(1)
 }
 
 // --- UPDATES ----------------------------------------------- //

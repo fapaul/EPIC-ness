@@ -1,4 +1,5 @@
 import json
+import time
 
 def createYearsCheck(years):
 	if (years is None or len(years) == 0):
@@ -33,6 +34,7 @@ def queryYears(db, isDummy, months, years):
 		data = queryMonths(db, isDummy, months, years)
 		return {'years': yearsCount, 'months': data['months'], 'weeks': data['weeks']}
 	else:
+		time.sleep(2)
 		# Hardcoded results from Hana
 		yearsCount = [169001153, 176897199, 178544324, 173179759]
 
@@ -54,6 +56,7 @@ def queryMonths(db, isDummy, months, years):
 		weeksCount = queryWeeks(db, isDummy, months, years)
 		return {'months': monthsCount, 'weeks': weeksCount}
 	else:
+		time.sleep(2)
 		# Hardcoded results from Hana
 		monthsCount = [0 for i in range(0,12)]
 		if ('2010' in years):
@@ -127,6 +130,7 @@ def queryWeeks(db, isDummy, months, years):
 
 		return weeksCount
 	else:
+		time.sleep(2)
 		weeksCount = [0, 0, 0, 0, 0]
 
 		# Hardcoded results from HANA

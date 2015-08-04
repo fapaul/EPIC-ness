@@ -20,6 +20,9 @@
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='styles/small-business.css') }}" rel="stylesheet">
 
+    <!-- Loading Bar CSS -->
+    <link href="{{ url_for('static', filename='styles/loading-bar.css') }}" rel="stylesheet" />
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -29,10 +32,7 @@
 
 </head>
 
-<body>
-    <div class="loadingAnimation" style="display: none">
-        <img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" alt="Loading data..."/>
-    </div>
+<body ng-app="myApp" ng-controller="ExampleCtrl">
     <!-- Page Content -->
     <div class="container">
         <center>
@@ -102,12 +102,18 @@
                 </div>
             </div>
         </footer>
-
     </div>
     <!-- /.container -->
 
     <!-- jQuery -->
     <script src="{{ url_for('static', filename='scripts/jquery.js') }}"></script>
+
+    <!-- angular -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-animate.min.js"></script>
+
+    <!-- loadingbar -->
+    <script src="{{ url_for('static', filename='scripts/loading-bar.js') }}"></script>
 
     <!-- Q module -->
     <script src="{{ url_for('static', filename='scripts/q.js') }}"></script>

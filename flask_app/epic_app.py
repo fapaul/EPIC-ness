@@ -151,6 +151,7 @@ def getCalmapData():
 
 		return Response(json.dumps(result))
 	else:
+		time.sleep(3)
 		resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
 		return Response(resultAsJson)
 
@@ -231,6 +232,7 @@ def getHeatmapData():
 
 		return Response(json.dumps(locations))
 	else:
+		time.sleep(3)
 		return Response(json.dumps([
 			dict(lat=40.645320892333984, long=-73.7768783569336, count=1000),
 			dict(lat=40.72430419921875, long=-73.9999008178711, count=50),
