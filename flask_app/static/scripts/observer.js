@@ -52,6 +52,7 @@ function changeBarchartSelection(barData) {
 var firstTime = true
 function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 	// Check for changes because of multiple calls by the event listener
+	//console.log(southWestBound, northEastBound, newZoomLevel, southWest)
 	if (!southWest || !northEast ||
 			southWest.lat != southWestBound.lat || southWest.long != southWestBound.long ||
 			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
