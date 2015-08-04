@@ -10,7 +10,8 @@ var selectedYears = [1],
 		selectedWeeks = [1, 4]
 
 var northEast,
-	southWest
+	southWest,
+	zoomLevel
 
 var calmapSelection = [[1, 0], [7, 23]] // From Monday 0:00 'til Sunday 23:00
 
@@ -49,17 +50,12 @@ function changeBarchartSelection(barData) {
 }
 
 var firstTime = true
-function setHeatmapBounds(northEastBound, southWestBound) {
+function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 	// Check for changes because of multiple calls by the event listener
 	if (!southWest || !northEast ||
 			southWest.lat != southWestBound.lat || southWest.long != southWestBound.long ||
 			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
-
-		updateHeatmap().then(function(){
-			southWest = {'lat': southWestBound.lat, 'long': southWestBound.long}
-			northEast = {'lat': northEastBound.lat, 'long': northEastBound.long}
-		})
-		/*
+				updateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
 			.then(function(){return updateCalmap(true)}, debugRejectLog)
 			.then(function(){
 				if (firstTime) {
@@ -72,7 +68,6 @@ function setHeatmapBounds(northEastBound, southWestBound) {
 					}
 				}
 			}, debugRejectLog)
-		*/
 	}
 }
 
@@ -168,11 +163,18 @@ function updateBarCharts(name, dontWait) {
 }
 
 var heatmapCallID = -1
-function updateHeatmap(dontWait) {
+function updateHeatmap(dontWait, newSouthWest, newNorthEast, newZoomLevel) {
 	debugLog('Update Heatmap')
   var defer = Q.defer()
 	var delay = (heatmapCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
-	setTimeout(function(myID){
+	debugLog(newSouthWest, newNorthEast, newZoomLevel)
+	if (!newSouthWest || !newNorthEast || newZoomLevel == null) {
+		newSouthWest = southWest
+		newNorthEast = northEast
+		newZoomLevel = zoomLevel
+	}
+
+	setTimeout(function(myID, newSouthWest, newNorthEast, newZoomLevel){
 		// Check ID
 		if (myID == heatmapCallID) {
 			// Lock actions while loading
@@ -189,11 +191,15 @@ function updateHeatmap(dontWait) {
 						"months": months,
 						"weeks": weeks,
 						"dayHours": calmapSelection,
-						"SouthWest": southWest,
-						"NorthEast": northEast
+						"southWest": newSouthWest,
+						"northEast": newNorthEast,
+						"zoomLevel": newZoomLevel
 					},
 					success: function(data) {
 						regenerateHeatmapLayer(data)
+						southWest = {'lat': newSouthWest.lat, 'long': newSouthWest.long}
+						northEast = {'lat': newNorthEast.lat, 'long': newNorthEast.long}
+						zoomLevel = newZoomLevel
 						releaseLock()
 						defer.resolve()
 					}
@@ -205,7 +211,7 @@ function updateHeatmap(dontWait) {
 		} else {
 			defer.reject()
 		}
-	}, delay, ++heatmapCallID)
+	}, delay, ++heatmapCallID, newSouthWest, newNorthEast, newZoomLevel)
 	return defer.promise
 }
 
@@ -230,8 +236,8 @@ function updateCalmap(dontWait) {
 						"years": years,
 						"months": months,
 						"weeks": weeks,
-						"SouthWest": southWest,
-						"NorthEast": northEast
+						"southWest": southWest,
+						"northEast": northEast
 					},
 					success: function(data) {
 						regenerateCalmap(data)

@@ -10,8 +10,8 @@ from barchartsCalculator import queryYears, queryMonths, queryWeeks, createYears
 #TODO: Store dummy data in json files (heatmap, barcharts, calmap)
 
 #configuration
-DEBUG = False
-DUMMY = True
+DEBUG = True
+DUMMY = False
 SECRET_KEY = SECRET
 USERNAME = flask_user
 PASSWORD = flask_password
@@ -100,10 +100,10 @@ def getCalmapData():
 		years = requestObj.getlist('years[]');
 		months = requestObj.getlist('months[]');
 		weeks = requestObj.getlist('weeks[]');
-		south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
-					'long': float(requestObj.get('SouthWest[long]'))}
-		north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
-	 				'long': float(requestObj.get('NorthEast[long]'))}
+		southWest = {'lat': float(requestObj.get('southWest[lat]')),
+					'long': float(requestObj.get('southWest[long]'))}
+		northEast = {'lat': float(requestObj.get('northEast[lat]')),
+	 				'long': float(requestObj.get('northEast[long]'))}
 
 		i = 0;
 		dayHours = [];
@@ -111,16 +111,16 @@ def getCalmapData():
 			dayHours.append(requestObj.getlist('dayHours['+str(i)+'][]'))
 			i += 1
 
-		latMax = south_west['lat']
-		latMin = north_east['lat']
-		if (south_west['lat'] < north_east['lat']):
-			latMax = north_east['lat']
-			latMin = south_west['lat']
-		longMax = south_west['long']
-		longMin = north_east['long']
-		if (south_west['long'] < north_east['long']):
-			longMax = north_east['long']
-			longMin = south_west['long']
+		latMax = southWest['lat']
+		latMin = northEast['lat']
+		if (southWest['lat'] < northEast['lat']):
+			latMax = northEast['lat']
+			latMin = southWest['lat']
+		longMax = southWest['long']
+		longMin = northEast['long']
+		if (southWest['long'] < northEast['long']):
+			longMax = northEast['long']
+			longMin = southWest['long']
 		# Query results including params
 		query = open('./queries/frontend/calmap/getCalmapData.sql').read()
 
@@ -162,26 +162,34 @@ def getHeatmapData():
 		years = requestObj.getlist('years[]');
 		months = requestObj.getlist('months[]');
 		weeks = requestObj.getlist('weeks[]');
-		south_west = {'lat': float(requestObj.get('SouthWest[lat]')),
-					'long': float(requestObj.get('SouthWest[long]'))}
-		north_east = {'lat': float(requestObj.get('NorthEast[lat]')),
-	 				'long': float(requestObj.get('NorthEast[long]'))}
+		southWest = {'lat': float(requestObj.get('southWest[lat]')),
+					'long': float(requestObj.get('southWest[long]'))}
+		northEast = {'lat': float(requestObj.get('northEast[lat]')),
+	 				'long': float(requestObj.get('northEast[long]'))}
+		zoomLevel = int(requestObj.get('zoomLevel'))
+		precision = 0
+		if (zoomLevel <= 12):
+			precision = 3
+		else:
+			precision = 4
+
+
 		i = 0;
 		dayHours = [];
 		while(requestObj.getlist('dayHours['+str(i)+'][]')):
 			dayHours.append(requestObj.getlist('dayHours['+str(i)+'][]'))
 			i += 1
 
-		latMax = south_west['lat']
-		latMin = north_east['lat']
-		if (south_west['lat'] < north_east['lat']):
-			latMax = north_east['lat']
-			latMin = south_west['lat']
-		longMax = south_west['long']
-		longMin = north_east['long']
-		if (south_west['long'] < north_east['long']):
-			longMax = north_east['long']
-			longMin = south_west['long']
+		latMax = southWest['lat']
+		latMin = northEast['lat']
+		if (southWest['lat'] < northEast['lat']):
+			latMax = northEast['lat']
+			latMin = southWest['lat']
+		longMax = southWest['long']
+		longMin = northEast['long']
+		if (southWest['long'] < northEast['long']):
+			longMax = northEast['long']
+			longMin = southWest['long']
 		if len(dayHours) >= 2:
 			hourMax = dayHours[1][1]
 			hourMin = dayHours[0][1]
@@ -213,7 +221,8 @@ def getHeatmapData():
 			'?', str(hourMax), 1).replace(
 			'?', str(hourMin), 1).replace(
 			'?', str(dayMax), 1).replace(
-			'?', str(dayMin), 1)
+			'?', str(dayMin), 1).replace(
+			'$', str(precision))
 		print(query)
 
 		cur = g.db.cursor()
