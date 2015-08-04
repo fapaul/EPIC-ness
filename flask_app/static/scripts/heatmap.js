@@ -15,7 +15,15 @@ function initHeatmap() {
 			zoomControl: true,
 			styles: mapGreyScaleStyles
 		})
+
 		google.maps.event.addListener(googlemap, 'bounds_changed', adjustBoundsData)
+		google.maps.event.addListener(googlemap, 'tilesloaded', function(){
+			var southWestBound = googlemap.getBounds().getSouthWest()
+			var northEastBound = googlemap.getBounds().getNorthEast()
+			southWest = {'lat': southWestBound.G, 'long': southWestBound.K}
+			northEast = {'lat': northEastBound.G, 'long': northEastBound.K}
+		})
+
 	});
 
 }
