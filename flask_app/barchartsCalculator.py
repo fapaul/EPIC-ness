@@ -1,6 +1,5 @@
 import json
 import time
-
 def createYearsCheck(years):
 	if (years is None or len(years) == 0):
 		years = [2011, 2012, 2013, 2014]

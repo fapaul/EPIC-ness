@@ -6,6 +6,7 @@ import json
 import datetime
 import time
 from barchartsCalculator import queryYears, queryMonths, queryWeeks, createYearsCheck #TODO: ,queryCalmap, queryHeatmap
+from database_connection import DatabaseConnection
 
 #TODO: Store dummy data in json files (heatmap, barcharts, calmap)
 
@@ -18,33 +19,28 @@ PASSWORD = flask_password
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-
-def connect_db():
-	global DUMMY
-	if (not DUMMY):
-		try:
-			connection = pyhdb.connect(
-				host = db_HOST,
-				port = db_PORT,
-				user = db_USER,
-				password = db_PASSWORD)
-			DUMMY = False
-			return connection
-		except:
-			print('HANA connection failed!')
-			DUMMY = True
-			# raise Exception('HANA connection failed. Did you turn on VPN?')
-	return None
+connection_pool = []
 
 @app.before_request
 def before_request():
-	g.db = connect_db()
+	connection_pool.append(DatabaseConnection(request.path))
 
 @app.teardown_request
 def teardown_request(exception):
-	db = getattr(g, 'db', None)
+	"""db = getattr(g, 'db', None)
 	if db is not None:
-		db.close()
+		db.close()"""
+	for connection in connection_pool:
+		if connection.path == request.path:
+			connection.connector.close()
+			connection_pool.remove(connection)
+
+def connect_db(requestName):
+	for connection in connection_pool:
+		if connection.path == requestName:
+			return connection.connector
+
+
 
 # --------- Frontend application -------------------------- #
 
@@ -64,7 +60,7 @@ def responseYears():
 		years = request.form.getlist('years[]')
 
 	# Exported because queryMonths is also used by queryYears
-	return Response(json.dumps(queryYears(g.db, DUMMY, months, years)))
+	return Response(json.dumps(queryYears(connect_db(request.path), DUMMY, months, years)))
 
 # Contains counts for months and weeks
 @app.route('/getMonthsCount', methods=['GET', 'POST'])
@@ -77,7 +73,7 @@ def responseMonths():
 		years = request.form.getlist('years[]')
 
 	# Exported because queryMonths is also used by queryYears
-	return Response(json.dumps(queryMonths(g.db, DUMMY, months, years)))
+	return Response(json.dumps(queryMonths(connect_db(request.path), DUMMY, months, years)))
 
 # Contains count for weeks
 @app.route('/getWeeksCount', methods=['GET', 'POST'])
@@ -90,7 +86,7 @@ def responseWeeks():
 		years = request.form.getlist('years[]')
 
 	# Exported because queryWeeks is also used by queryMonths
-	return Response(json.dumps(queryWeeks(g.db, DUMMY, months, years)))
+	return Response(json.dumps(queryWeeks(db_connect(request.path), DUMMY, months, years)))
 
 @app.route('/getCalmapData', methods=['GET', 'POST'])
 def getCalmapData():
@@ -135,7 +131,7 @@ def getCalmapData():
 			'?', str(longMin-0.002), 1)
 		print(query)
 
-		cur = g.db.cursor()
+		cur = connect_db(request.path).cursor()
 		cur.execute(query)
 		timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
 
@@ -225,8 +221,7 @@ def getHeatmapData():
 			'?', str(dayMin), 1).replace(
 			'$', str(precision))
 		print(query)
-
-		cur = g.db.cursor()
+		cur = connect_db(request.path).cursor()
 		cur.execute(query)
 		locations = [dict(lat=row[0], long=row[1], count=row[2]) for row in cur.fetchall()]
 
