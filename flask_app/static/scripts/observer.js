@@ -55,14 +55,45 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 	if (!southWest || !northEast ||
 			southWest.lat != southWestBound.lat || southWest.long != southWestBound.long ||
 			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
-				updateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
+
+			// TODO Für Paul: So würde es aussehen für Multithreaded Connections:
+			// Wird aber nicht funktionieren, da updateHeatmap und updateCalmaa jeweils 5 Sekunden warten
+			// und dann einen Lock Request machen, wobei nur einer den Lock erhält -> Locks verhinden das
+			// Multithreading -> Lock Request und Release müssen in die übergeordneten Funktion jeweils
+			// ausgelagert werden.
+			// Also: Überall wo updateHeatmap, updateCalmap oder updateBarcharst aufgerufen werden den
+			// sequentiellen Aufruf über ein Mutex wie hier in Multithreading umwandeln und dabei mit Locks arbeiten.
+			// Außerdem sollten Calmap und Barcharts ebenfalls speichern, ob es nötig ist, neuzuladen
+			// (Wenn man eine neue Auswahl trifft und dann wieder die alte macht, werden die Daten trotzdem geladen
+			// -> Nach dem Timeout selectedYears z.B. mit prevSelectedYears abgleichen)
+			/*
+			startedThreads = 0
+			allThreadsFinished = function() {
+				startedThreads--
+				if (startedThreads <= 0) {
+					releaseLock()
+				}
+			}
+			startedThreads++
+			updateHeatmap(false, southWestBound, northEastBound, newZoomLevel).then(allThreadsFinished, debugRejectLog)
+			startedThreads++
+			updateCalmap(false).then(allThreadsFinished, debugRejectLog)
+			if (firstTime) {
+				firstTime = false
+				startedThreads++
+				// Load function only for initialization
+				loadBarchartsData().then(allThreadsFinished, debugRejectLog)
+			}
+			*/
+
+			updateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
 			.then(function(){return updateCalmap(true)}, debugRejectLog)
 			.then(function(){
 				if (firstTime) {
 					firstTime = false
 					if (requestLock()) {
-						loadBarchartsData()
-							.then(releaseLock, debugRejectLog)
+						// Load only for initialization
+						loadBarchartsData().then(releaseLock, debugRejectLog)
 					} else {
 						debugLog('Loading barcharts failed (cant request lock)')
 					}
@@ -85,6 +116,7 @@ function requestLock() {
 		disableHeatmapControl()
 		disableCalmapControl()
 		disableBarchartsControl()
+		showLoadingAnimation()
 		locked = true
 		return true
 	}
@@ -100,6 +132,7 @@ function releaseLock() {
 		enableHeatmapControl()
 		enableCalmapControl()
 		enableBarchartsControl()
+		hideLoadingAnimation()
 		locked = false
 		return true
 	} else {
@@ -119,7 +152,21 @@ function debugRejectLog() {
 	}
 }
 
+function showLoadingAnimation() {
+	$('.loadingAnimation').css('display','')
+}
+
+function hideLoadingAnimation() {
+	$('.loadingAnimation').css('display','none')
+}
+
 // --- UPDATES ----------------------------------------------- //
+
+function cancelUpdate() {
+	barchartsCallID++
+	heatmapCallID++
+	calmapCallID++
+}
 
 var barchartsCallID = -1
 function updateBarCharts(name, dontWait) {

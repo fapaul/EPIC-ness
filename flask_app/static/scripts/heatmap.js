@@ -63,8 +63,8 @@ function regenerateHeatmapLayer(data){
 	})
 }
 
-// x: Lat steigt nach oben (um 40.6)
-// y: Long steigt nach rechts (um -73,8)
+// x: Lat steigt nach oben (ca 40.6)
+// y: Long steigt nach rechts (ca -73,8)
 function adjustBoundsData(){
 	// check if the new viewport is contained by the old one.
 	var southWestBound = googlemap.getBounds().getSouthWest()
@@ -80,15 +80,15 @@ function adjustBoundsData(){
 										newNorthEast.lat],	//y1
 									 [newNorthEast.long,	//x2
 										newSouthWest.lat]]	//y2
-		oldView = [[southWest.long,		//x3
-										northEast.lat],		//y3
-								   [northEast.long,		//x4
-								  	southWest.lat]]		//y4
+		oldView = [[southWest.long-0.002,			//x3
+										northEast.lat+0.002],	//y3
+								   [northEast.long+0.002,	//x4
+								  	southWest.lat-0.002]]	//y4
 	}
 	if (newView != null && oldView != null && zoomLevel != null &&
 		((zoomLevel <= 12 && newZoomLevel <= 12) || (zoomLevel >= 12 && newZoomLevel >= 12)) &&
 			rectIsInRect(newView, oldView)) {
-		heatmapCallID++ // Dont update heatmap data
+ 		cancelUpdate() // Dont update data
 	} else {
 		setHeatmapBounds(newSouthWest, newNorthEast, newZoomLevel)
 	}

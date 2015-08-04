@@ -9,10 +9,10 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-	<!-- Calmap -->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/cal-heatmap.css') }}">
-
     <title>Visualize cab data (EPIC 2)</title>
+
+  	<!-- Calmap -->
+  	<link href="{{ url_for('static', filename='styles/cal-heatmap.css') }}" rel="stylesheet">
 
     <!-- Bootstrap Core CSS -->
     <link href="{{ url_for('static', filename='styles/bootstrap.min.css') }}" rel="stylesheet">
@@ -30,6 +30,9 @@
 </head>
 
 <body>
+    <div class="loadingAnimation" style="display: none">
+        <img src="{{ url_for('static', filename='img/ajax-loader.gif') }}" alt="Loading data..."/>
+    </div>
     <!-- Page Content -->
     <div class="container">
         <center>
