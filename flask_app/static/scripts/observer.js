@@ -21,12 +21,23 @@ var loadingBar
 
 var app = angular.module('myApp', ['angular-loading-bar', 'ngAnimate'])
   .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
-    // cfpLoadingBarProvider.includeBar = true;
-    cfpLoadingBarProvider.includeSpinner = true;
+    // cfpLoadingBarProvider.includeSpinner = false
+		// cfpLoadingBarProvider.latencyThreshold = 1000
+    // cfpLoadingBarProvider.startSize = 0.01
+    cfpLoadingBarProvider.autoIncrement = false
   }])
 	.controller('ExampleCtrl', function ($scope, $http, $timeout, cfpLoadingBar) {
 		loadingBar = cfpLoadingBar
 	})
+
+function incBarSlowly(limit) {
+	var status = loadingBar.status()
+	var step = (Math.random() * 3) * (limit - status) / 100
+	loadingBar.set(status+step)
+	if (status+step < limit) {
+		setTimeout(incBarSlowly, 250, limit)
+	}
+}
 
 // --- OBSERVER ---------------------------------------------- //
 
@@ -51,12 +62,25 @@ function changeBarchartSelection(barData) {
 	handleNewBarElement(barData, name)
 
 	// Update whole frontend (barcharts, heatmap, calmap)
-	updateBarCharts(name)
-		.then(function(){
-			return updateHeatmap(true)
-		}, debugRejectLog)
-		.then(function(){
-			return updateCalmap(true)
+	requestUpdateBarcharts(name)
+		.then(function(name){
+			if (requestLock()) {
+				incBarSlowly(0.6)
+				updateBarcharts(name)
+					.then(function(){
+						loadingBar.set(0.6)
+						incBarSlowly(0.8)
+						return updateHeatmap()
+					}, debugRejectLog)
+					.then(function(){
+						loadingBar.set(0.8)
+						incBarSlowly(0.995)
+						return updateCalmap()
+					}, debugRejectLog)
+					.then(releaseLock, debugRejectLog)
+			} else {
+				debugLog('Barcharts: Couldn\'t request an actions lock')
+			}
 		}, debugRejectLog)
 }
 
@@ -69,15 +93,6 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
 
 			// TODO Für Paul: So würde es aussehen für Multithreaded Connections:
-			// Wird aber nicht funktionieren, da updateHeatmap und updateCalmaa jeweils 5 Sekunden warten
-			// und dann einen Lock Request machen, wobei nur einer den Lock erhält -> Locks verhinden das
-			// Multithreading -> Lock Request und Release müssen in die übergeordneten Funktion jeweils
-			// ausgelagert werden.
-			// Also: Überall wo updateHeatmap, updateCalmap oder updateBarcharst aufgerufen werden den
-			// sequentiellen Aufruf über ein Mutex wie hier in Multithreading umwandeln und dabei mit Locks arbeiten.
-			// Außerdem sollten Calmap und Barcharts ebenfalls speichern, ob es nötig ist, neuzuladen
-			// (Wenn man eine neue Auswahl trifft und dann wieder die alte macht, werden die Daten trotzdem geladen
-			// -> Nach dem Timeout selectedYears z.B. mit prevSelectedYears abgleichen)
 			/*
 			startedThreads = 0
 			allThreadsFinished = function() {
@@ -87,9 +102,9 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 				}
 			}
 			startedThreads++
-			updateHeatmap(false, southWestBound, northEastBound, newZoomLevel).then(allThreadsFinished, debugRejectLog)
+			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel).then(allThreadsFinished, debugRejectLog)
 			startedThreads++
-			updateCalmap(false).then(allThreadsFinished, debugRejectLog)
+			requestUpdateCalmap(false).then(allThreadsFinished, debugRejectLog)
 			if (firstTime) {
 				firstTime = false
 				startedThreads++
@@ -98,26 +113,47 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 			}
 			*/
 
-			updateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
-			.then(function(){return updateCalmap(true)}, debugRejectLog)
-			.then(function(){
-				if (firstTime) {
-					firstTime = false
-					if (requestLock()) {
-						// Load only for initialization
-						loadBarchartsData().then(releaseLock, debugRejectLog)
-					} else {
-						debugLog('Loading barcharts failed (cant request lock)')
+			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
+				.then(function(view){
+					if (requestLock()){
+						incBarSlowly(0.2)
+						updateHeatmap(view)
+							.then(function(){
+								loadingBar.set(0.2)
+								incBarSlowly(0.4)
+								return updateCalmap()
+							}, debugRejectLog)
+							.then(function(){
+								if (firstTime){
+									firstTime = false
+									loadingBar.set(0.4)
+									incBarSlowly(0.995)
+									return loadBarchartsData()
+								} else {
+									var defer = Q.defer()
+									defer.resolve()
+									return defer.promise
+								}
+							}, debugRejectLog)
+							.then(releaseLock, debugRejectLog)
+					} else{
+						debugLog('Heatmap: Couldn\'t request an actions lock')
 					}
-				}
-			}, debugRejectLog)
+				}, debugRejectLog)
 	}
 }
 
 function setCalmapSelection(selCells) {
 	// Only save first and last entry, because the selected cells form a rectangle
 	calmapSelection = [selCells[0], selCells[selCells.length-1]]
-	updateHeatmap()
+	requestUpdateHeatmap()
+		.then(function(){
+			if (requestLock()) {
+				incBarSlowly(0.995)
+				updateHeatmap()
+					.then(releaseLock, debugRejectLog)
+			}
+		}, debugRejectLog)
 }
 
 function requestLock() {
@@ -159,8 +195,12 @@ function debugLog(str) {
 }
 
 function debugRejectLog() {
+	// If error occurs -> log error and release lock
 	if (DEBUG) {
 		console.log('QReject - Arguments: \n'+arguments.join(' \n'))
+	}
+	if (isLocked()) {
+		releaseLock()
 	}
 }
 
@@ -191,39 +231,15 @@ function cancelUpdate() {
 }
 
 var barchartsCallID = -1
-function updateBarCharts(name, dontWait) {
-	debugLog('Update Barcharts')
+function requestUpdateBarcharts(name, dontWait) {
+	debugLog('Request Barcharts Update ('+name+')')
   var defer = Q.defer()
 	var delay = (barchartsCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 
 	setTimeout(function(myID){
 		// Check ID
 		if (myID == barchartsCallID) {
-			// Lock actions while loading
-			if (requestLock()) {
-				if (!name || name == "year") {
-					// Loads new data, reloads bar chart and releases lock
-					updateMonthsWeeks(selectedYears, selectedMonths)
-						.then(function(){
-							releaseLock()
-							defer.resolve()
-						}, debugRejectLog)
-				} else if (name == "month") {
-					// Loads new data, reloads bar chart and releases lock
-					updateWeeks(selectedYears, selectedMonths)
-						.then(function(){
-							releaseLock()
-							defer.resolve()
-						}, debugRejectLog)
-				} else { // if (name == "week") {
-					// No bar chart changes
-					releaseLock()
-					defer.resolve()
-				}
-			} else {
-				debugLog('Barcharts: Couldn\'t request an actions lock')
-				defer.reject()
-			}
+			defer.resolve(name)
 		} else {
 			defer.reject()
 		}
@@ -231,9 +247,27 @@ function updateBarCharts(name, dontWait) {
 	return defer.promise
 }
 
+function updateBarcharts(name) {
+	debugLog('Update Barcharts ('+name+')')
+	var defer = Q.defer()
+	if (!name || name == "year") {
+		// Loads new data, reloads bar chart and releases lock
+		updateMonthsWeeks(selectedYears, selectedMonths)
+			.then(defer.resolve, defer.reject)
+	} else if (name == "month") {
+		// Loads new data, reloads bar chart and releases lock
+		updateWeeks(selectedYears, selectedMonths)
+			.then(defer.resolve, debug.reject)
+	} else { // if (name == "week") {
+		// No bar chart changes
+		defer.resolve()
+	}
+	return defer.promise
+}
+
 var heatmapCallID = -1
-function updateHeatmap(dontWait, newSouthWest, newNorthEast, newZoomLevel) {
-	debugLog('Update Heatmap')
+function requestUpdateHeatmap(dontWait, newSouthWest, newNorthEast, newZoomLevel) {
+	debugLog('Request Heatmap Update')
   var defer = Q.defer()
 	var delay = (heatmapCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 	debugLog(newSouthWest, newNorthEast, newZoomLevel)
@@ -242,85 +276,91 @@ function updateHeatmap(dontWait, newSouthWest, newNorthEast, newZoomLevel) {
 		newNorthEast = northEast
 		newZoomLevel = zoomLevel
 	}
-
-	setTimeout(function(myID, newSouthWest, newNorthEast, newZoomLevel){
+	setTimeout(function(myID, newViewData){
 		// Check ID
 		if (myID == heatmapCallID) {
-			// Lock actions while loading
-			if (requestLock()) {
-				years = selectedYears.map(function(index){return yearData[index]['year']})
-				months = selectedMonths.map(function(index){return (index+1)+""})
-				weeks = selectedWeeks.map(function(index){return (index+1)+""})
-
-				$.ajax({
-					type: "POST",
-					url: "/getHeatmapData",
-					data: {
-						"years": years,
-						"months": months,
-						"weeks": weeks,
-						"dayHours": calmapSelection,
-						"southWest": newSouthWest,
-						"northEast": newNorthEast,
-						"zoomLevel": newZoomLevel
-					},
-					success: function(data) {
-						regenerateHeatmapLayer(data)
-						southWest = {'lat': newSouthWest.lat, 'long': newSouthWest.long}
-						northEast = {'lat': newNorthEast.lat, 'long': newNorthEast.long}
-						zoomLevel = newZoomLevel
-						releaseLock()
-						defer.resolve()
-					}
-				})
-			} else {
-				debugLog('Heatmap: Couldn\'t request an actions lock')
-				defer.reject()
-			}
+			defer.resolve(newViewData)
 		} else {
 			defer.reject()
 		}
-	}, delay, ++heatmapCallID, newSouthWest, newNorthEast, newZoomLevel)
+	}, delay, ++heatmapCallID, {newSouthWest, newNorthEast, newZoomLevel})
+	return defer.promise
+}
+
+function updateHeatmap(viewData) {
+	debugLog('Update Heatmap')
+	var defer = Q.defer()
+	years = selectedYears.map(function(index){return yearData[index]['year']})
+	months = selectedMonths.map(function(index){return (index+1)+""})
+	weeks = selectedWeeks.map(function(index){return (index+1)+""})
+
+	if (!viewData) {
+		// If not called by a heatmap change take the old view
+		viewData = {newSouthWest: southWest, newNorthEast: northEast, newZoomLevel: zoomLevel}
+	}
+
+	$.ajax({
+		type: "POST",
+		url: "/getHeatmapData",
+		data: {
+			"years": years,
+			"months": months,
+			"weeks": weeks,
+			"dayHours": calmapSelection,
+			"southWest": viewData.newSouthWest,
+			"northEast": viewData.newNorthEast,
+			"zoomLevel": viewData.newZoomLevel
+		},
+		success: function(data) {
+			regenerateHeatmapLayer(data)
+			southWest = {'lat': viewData.newSouthWest.lat, 'long': viewData.newSouthWest.long}
+			northEast = {'lat': viewData.newNorthEast.lat, 'long': viewData.newNorthEast.long}
+			zoomLevel = viewData.newZoomLevel
+			defer.resolve()
+		},
+		error: defer.reject
+	})
 	return defer.promise
 }
 
 var calmapCallID = -1
-function updateCalmap(dontWait) {
-	debugLog('Update Calmap')
-  var defer = Q.defer();
+function requestUpdateCalmap(dontWait) {
+	debugLog('Request Calmap Update')
+  var defer = Q.defer()
 	var delay = (calmapCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 	setTimeout(function(myID){
 		// Check ID
 		if (myID == calmapCallID) {
-			// Lock actions while loading
-			if (requestLock()) {
-				years = selectedYears.map(function(index){return yearData[index]['year']})
-				months = selectedMonths.map(function(index){return (index+1)+""})
-				weeks = selectedWeeks.map(function(index){return (index+1)+""})
-
-				$.ajax({
-					type: "POST",
-					url: "/getCalmapData",
-					data: {
-						"years": years,
-						"months": months,
-						"weeks": weeks,
-						"southWest": southWest,
-						"northEast": northEast
-					},
-					success: function(data) {
-						regenerateCalmap(data)
-						releaseLock()
-						defer.resolve()
-					}
-				})
-			} else {
-				debugLog('Calmap: Couldn\'t request an actions lock')
-				defer.reject()
-			}
+			defer.resolve()
 		} else {
 			defer.reject()
 		}
 	}, delay, ++calmapCallID)
+	return defer.promise
+}
+
+function updateCalmap() {
+	debugLog('Update Calmap')
+	var defer = Q.defer()
+	years = selectedYears.map(function(index){return yearData[index]['year']})
+	months = selectedMonths.map(function(index){return (index+1)+""})
+	weeks = selectedWeeks.map(function(index){return (index+1)+""})
+
+	$.ajax({
+		type: "POST",
+		url: "/getCalmapData",
+		data: {
+			"years": years,
+			"months": months,
+			"weeks": weeks,
+			"southWest": southWest,
+			"northEast": northEast
+		},
+		success: function(data) {
+			regenerateCalmap(data)
+			defer.resolve()
+		},
+		error: defer.reject
+	})
 	return defer.promise
 }

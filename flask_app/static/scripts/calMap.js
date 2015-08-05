@@ -173,7 +173,9 @@ function endSelection() {
 			}
 			selCells = highlightCells(d)
 			for (var i = 0; i < selCells.length; i++) {
-				selCells[i] = [selCells[i].getDay(), selCells[i].getHours()]
+				day = selCells[i].getDay()
+				if (day == 0) day = 7 // Sunday has to be a 7 (calmap returns 0)
+				selCells[i] = [day, selCells[i].getHours()]
 			}
 			setCalmapSelection(selCells)
 		}

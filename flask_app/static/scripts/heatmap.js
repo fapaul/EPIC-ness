@@ -33,6 +33,7 @@ function disableHeatmapControl() {
 		googlemap.set('draggable', false);
 		googlemap.set('scrollwheel', false);
 		googlemap.set('disableDoubleClickZoom', false);
+		googlemap.set('zoomControl', false);
 	}
 	$('#map-canvas').css('opacity', 0.5)
 }
@@ -41,6 +42,7 @@ function enableHeatmapControl() {
 	googlemap.set('draggable', true);
 	googlemap.set('scrollwheel', true);
 	googlemap.set('disableDoubleClickZoom', true);
+	googlemap.set('zoomControl', true);
 	$('#map-canvas').css('opacity', 1)
 }
 
@@ -59,13 +61,13 @@ function regenerateHeatmapLayer(data){
 		map: googlemap,
 		//maxIntensity: (average+maxCount)/2,
 		gradient: [
-		'rgba(88, 150, 94, 0)',
-		'rgba(175, 215, 179, 1)',
-		'rgba(146, 213, 152, 1)',
-		'rgba(102, 202, 111, 1)',
-		'rgba(74, 173, 83, 1)',
-		'rgba(35, 144, 45, 1)',
-		'rgba(14, 115, 23, 1)',
+		'rgba(255, 255, 255, 0)',
+		'rgba(96, 195, 102, 1)',
+		'rgba(86, 173, 92, 1)',
+		'rgba(72, 162, 81, 1)',
+		'rgba(64, 153, 73, 1)',
+		'rgba(35, 134, 45, 1)',
+		'rgba(24, 115, 30, 1)',
 		'rgba(8, 74, 15, 1)'
 		]
 	})
@@ -88,10 +90,10 @@ function adjustBoundsData(){
 										newNorthEast.lat],	//y1
 									 [newNorthEast.long,	//x2
 										newSouthWest.lat]]	//y2
-		oldView = [[southWest.long-0.002,			//x3
-										northEast.lat+0.002],	//y3
-								   [northEast.long+0.002,	//x4
-								  	southWest.lat-0.002]]	//y4
+		oldView = [[southWest.long-0.005,			//x3
+										northEast.lat+0.005],	//y3
+								   [northEast.long+0.005,	//x4
+								  	southWest.lat-0.005]]	//y4
 	}
 	if (newView != null && oldView != null && zoomLevel != null &&
 		((zoomLevel <= 12 && newZoomLevel <= 12) || (zoomLevel >= 12 && newZoomLevel >= 12)) &&
