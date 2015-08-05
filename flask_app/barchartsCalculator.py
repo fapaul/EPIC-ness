@@ -24,7 +24,7 @@ def queryYears(db, isDummy, months, years):
 	print('Executing years query...')
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getYearsTotal.sql').read()
-		print(query)
+		#print(query)
 
 		cur = db.cursor()
 		cur.execute(query)
@@ -46,7 +46,7 @@ def queryMonths(db, isDummy, months, years):
 		query = open('./queries/frontend/barcharts/getMonthsTotal.sql').read()
 		yearsCheck = createYearsCheck(years)
 		query = query.replace('?', yearsCheck, 1)
-		print(query)
+		#print(query)
 
 		cur = db.cursor()
 		cur.execute(query)
@@ -121,7 +121,7 @@ def queryWeeks(db, isDummy, months, years):
 		yearsCheck = createYearsCheck(years)
 		query = query.replace('?', yearsCheck, 1)
 		query = query.replace('?', '('+(','.join(months))+')', 1)
-		print(query)
+		#print(query)
 
 		cur = db.cursor()
 		cur.execute(query)

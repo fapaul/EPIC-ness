@@ -32,8 +32,13 @@ def teardown_request(exception):
 		db.close()"""
 	for connection in connection_pool:
 		if connection.path == request.path:
-			connection.connector.close()
+			try:
+				connection.connector.close()
+			except:
+				continue
+			print len(connection_pool)
 			connection_pool.remove(connection)
+
 
 def connect_db(requestName):
 	for connection in connection_pool:
@@ -129,7 +134,7 @@ def getCalmapData():
 			'?', str(latMin-0.002), 1).replace(
 			'?', str(longMax+0.002), 1).replace(
 			'?', str(longMin-0.002), 1)
-		print(query)
+		#print(query)
 
 		cur = connect_db(request.path).cursor()
 		cur.execute(query)
@@ -220,7 +225,7 @@ def getHeatmapData():
 			'?', str(dayMax), 1).replace(
 			'?', str(dayMin), 1).replace(
 			'$', str(precision))
-		print(query)
+		#print(query)
 		cur = connect_db(request.path).cursor()
 		cur.execute(query)
 		locations = [dict(lat=row[0], long=row[1], count=row[2]) for row in cur.fetchall()]
@@ -245,4 +250,4 @@ def getHeatmapData():
 		 	dict(lat=40.74961853027344, long=-73.99532318115234, count=5)]))
 
 if __name__ == '__main__':
-	app.run()
+	app.run(threaded=True)

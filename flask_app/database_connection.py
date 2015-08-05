@@ -7,10 +7,14 @@ class DatabaseConnection:
 		self._connector = None
 
 	def __str__(self):
-		return str(self.__dict__)
+		return str(self.path)
 
 	def __eq__(self, name): 
-		return self.__str__ == name
+		if type(name) == str:
+			return self.__str__ == name
+		else:
+			print str(type(name))
+			return self.__dict__ == name.__dict__
 
 	@property
 	def connector(self):
