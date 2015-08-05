@@ -21,18 +21,19 @@ def createYearsCheck(years):
 	return yearsString
 
 def queryYears(db, isDummy, months, years):
-	print('Executing years query...')
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getYearsTotal.sql').read()
 		#print(query)
 
 		cur = db.cursor()
+		print('Executing years query...')
 		cur.execute(query)
 		yearsCount = [row[1] for row in cur.fetchall()]
 
 		data = queryMonths(db, isDummy, months, years)
 		return {'years': yearsCount, 'months': data['months'], 'weeks': data['weeks']}
 	else:
+		print('Executing years query... (DUMMY)')
 		time.sleep(2)
 		# Hardcoded results from Hana
 		yearsCount = [169001153, 176897199, 178544324, 173179759]
@@ -41,7 +42,6 @@ def queryYears(db, isDummy, months, years):
 		return {'years': yearsCount, 'months': data['months'], 'weeks': data['weeks']}
 
 def queryMonths(db, isDummy, months, years):
-	print('Executing months query...')
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getMonthsTotal.sql').read()
 		yearsCheck = createYearsCheck(years)
@@ -49,12 +49,14 @@ def queryMonths(db, isDummy, months, years):
 		#print(query)
 
 		cur = db.cursor()
+		print('Executing months query...')
 		cur.execute(query)
 		monthsCount = [row[1] for row in cur.fetchall()]
 
 		weeksCount = queryWeeks(db, isDummy, months, years)
 		return {'months': monthsCount, 'weeks': weeksCount}
 	else:
+		print('Executing months query... (DUMMY)')
 		time.sleep(2)
 		# Hardcoded results from Hana
 		monthsCount = [0 for i in range(0,12)]
@@ -115,7 +117,6 @@ def queryMonths(db, isDummy, months, years):
 		return {'months': monthsCount, 'weeks': weeksCount}
 
 def queryWeeks(db, isDummy, months, years):
-	print('Executing weeks query...')
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getWeeksTotal.sql').read()
 		yearsCheck = createYearsCheck(years)
@@ -124,11 +125,13 @@ def queryWeeks(db, isDummy, months, years):
 		#print(query)
 
 		cur = db.cursor()
+		print('Executing weeks query...')
 		cur.execute(query)
 		weeksCount = [row[1] for row in cur.fetchall()]
 
 		return weeksCount
 	else:
+		print('Executing weeks query... (DUMMY)')
 		time.sleep(2)
 		weeksCount = [0, 0, 0, 0, 0]
 

@@ -1,5 +1,8 @@
+
 var UPDATE_DELAY = 3 // Seconds (waiting after input)
 var DEBUG = false
+
+// --- Global data store ------------------------------------- //
 
 var yearData = [{'year': '2010'}, {'year': '2011'}, {'year': '2012'}, {'year': '2013'}],
 	monthData = [{'month': 1}],
@@ -9,15 +12,19 @@ var selectedYears = [1],
 		selectedMonths = [0, 1],
 		selectedWeeks = [1, 4]
 
+// First set by Heatmap init function
 var northEast,
 	southWest,
 	zoomLevel
 
-var calmapSelection = [[1, 0], [7, 23]] // From Monday 0:00 'til Sunday 23:00
+// Meaning: From Monday 0:00 until Sunday 23:00
+var calmapSelection = [[1, 0], [7, 23]]
 
 var locked = false
 
 var loadingBar
+
+// --- Angular App (Neaded for Loading Bar) ------------------ //
 
 var app = angular.module('myApp', ['angular-loading-bar', 'ngAnimate'])
   .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
@@ -30,145 +37,7 @@ var app = angular.module('myApp', ['angular-loading-bar', 'ngAnimate'])
 		loadingBar = cfpLoadingBar
 	})
 
-function incBar(limit, speed) {
-	if (!speed) speed = 3 // slow
-	var status = loadingBar.status()
-	var step = (Math.random() * 3) * (limit - status) / 100
-	loadingBar.set(status+step)
-	if (status+step < limit) {
-		setTimeout(incBar, 250, limit, speed)
-	}
-}
-
-// --- OBSERVER ---------------------------------------------- //
-
-$(function initObserver() {
-	// Barcharts
-	initBarcharts() // Generates barcharts with empty data
-
-	// Calmap
-	displayCalmap() // Generates calmap with empty data
-
-	// Heatmap
-	initHeatmap() // Generates heatmap with an event listener (->First query)
-})
-
-// -- Variable updates --------------------------------------- //
-
-function changeBarchartSelection(barData) {
-	// Different behavior for each barchart ("year", "moth" or "week")
-	var name = (barData != null) ? Object.keys(barData)[0] : "year"
-
-	// Store clicked element
-	handleNewBarElement(barData, name)
-
-	// Update whole frontend (barcharts, heatmap, calmap)
-	var barTimePrediction = (name == "week") ? 0 : 0.5
-	requestUpdateBarcharts(name)
-		.then(function(name){
-			if (requestLock()) {
-				incBar(barTimePrediction)
-				updateBarcharts(name)
-					.then(function(){
-						loadingBar.set(barTimePrediction)
-						incBar((1 - barTimePrediction) / 2)
-						return updateHeatmap()
-					}, debugRejectLog)
-					.then(function(){
-						loadingBar.set((1 - barTimePrediction) / 2)
-						incBar(0.995)
-						return updateCalmap()
-					}, debugRejectLog)
-					.then(releaseLock, debugRejectLog)
-			} else {
-				debugLog('Barcharts: Couldn\'t request an actions lock')
-			}
-		}, debugRejectLog)
-}
-
-var firstTime = true
-function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
-	// Check for changes because of multiple calls by the event listener
-	//console.log(southWestBound, northEastBound, newZoomLevel, southWest)
-	if (!southWest || !northEast ||
-			southWest.lat != southWestBound.lat || southWest.long != southWestBound.long ||
-			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
-
-			// TODO Für Paul: So würde es aussehen für Multithreaded Connections:
-
-			startedThreads = 0
-			allThreadsFinished = function() {
-				if (--startedThreads <= 0) {
-					releaseLock()
-				}
-			}
-
-			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
-				.then(function(view){
-					if (requestLock()){
-						incBar(0.995, 2)
-
-						startedThreads++
-						updateHeatmap(view).then(allThreadsFinished, debugRejectLog)
-
-						startedThreads++
-						updateCalmap(view).then(allThreadsFinished, debugRejectLog)
-
-						if (firstTime){
-							firstTime = false
-							startedThreads++
-							loadBarchartsData().then(allThreadsFinished, debugRejectLog)
-						}
-					} else{
-						debugLog('Heatmap: Couldn\'t request an actions lock')
-					}
-				}, debugRejectLog)
-			// */
-			/*
-			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
-				.then(function(view){
-					if (requestLock()){
-						incBar(0.2)
-						updateHeatmap(view)
-							.then(function(){
-								loadingBar.set(0.2)
-								incBar(0.4)
-								return updateCalmap()
-							}, debugRejectLog)
-							.then(function(){
-								if (firstTime){
-									firstTime = false
-									loadingBar.set(0.4)
-									incBar(0.995)
-									return loadBarchartsData()
-								} else {
-									var defer = Q.defer()
-									defer.resolve()
-									return defer.promise
-								}
-							}, debugRejectLog)
-							.then(releaseLock, debugRejectLog)
-					} else{
-						debugLog('Heatmap: Couldn\'t request an actions lock')
-					}
-				}, debugRejectLog)
-		//*/
-	}
-}
-
-function setCalmapSelection(selCells) {
-	// Only save first and last entry, because the selected cells form a rectangle
-	calmapSelection = [selCells[0], selCells[selCells.length-1]]
-	requestUpdateHeatmap()
-		.then(function(){
-			if (requestLock()) {
-				incBar(0.995, 5)
-				updateHeatmap()
-					.then(releaseLock, debugRejectLog)
-			} else {
-			}
-		}, debugRejectLog)
-}
+// --- Lock, LoadingBar, Logging ----------------------------- //
 
 function requestLock() {
 	if (locked) {
@@ -230,10 +99,124 @@ function showLoadingAnimation() {
 	}
 }
 
+
+function incBar(limit, speed) {
+	if (!speed) speed = 3 // slow
+	var status = loadingBar.status()
+	var step = (Math.random() * 3) * (limit - status) / 100
+	loadingBar.set(status+step)
+	if (status+step < limit) {
+		setTimeout(incBar, 250, limit, speed)
+	}
+}
+
 function hideLoadingAnimation() {
 	//$('.loadingAnimation').css('display','none')
 	loadingBar.complete()
 	loadingBar.set(1)
+}
+
+// --- Observer ---------------------------------------------- //
+
+$(function initObserver() {
+	// Barcharts
+	initBarcharts() // Generates barcharts with empty data
+
+	// Calmap
+	displayCalmap() // Generates calmap with empty data
+
+	// Heatmap
+	initHeatmap() // Generates heatmap with an event listener (->First query)
+})
+
+// -- Variable updates --------------------------------------- //
+
+function changeBarchartSelection(barData) {
+	// Different behavior for each barchart ("year", "moth" or "week")
+	var name = (barData != null) ? Object.keys(barData)[0] : "year"
+
+	// Store clicked element
+	handleNewBarElement(barData, name)
+
+	startedThreads = 0
+	allThreadsFinished = function() {
+		if (--startedThreads <= 0) {
+			releaseLock()
+		}
+	}
+
+	// Update whole frontend (barcharts, heatmap, calmap)
+	var barTimePrediction = (name == "week") ? 0 : 0.5
+	requestUpdateBarcharts(name)
+		.then(function(name){
+			if (requestLock()) {
+				incBar(0.995, 4)
+
+				startedThreads++
+				updateBarcharts(name).then(allThreadsFinished, debugRejectLog)
+
+				startedThreads++
+				updateHeatmap().then(allThreadsFinished, debugRejectLog)
+
+				startedThreads++
+				updateCalmap().then(allThreadsFinished, debugRejectLog)
+			} else {
+				debugLog('Barcharts: Couldn\'t request an actions lock')
+			}
+		}, debugRejectLog)
+}
+
+var firstTime = true
+function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
+	// Check for changes because of multiple calls by the event listener
+	//console.log(southWestBound, northEastBound, newZoomLevel, southWest)
+	if (!southWest || !northEast ||
+			southWest.lat != southWestBound.lat || southWest.long != southWestBound.long ||
+			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
+
+			startedThreads = 0
+			allThreadsFinished = function() {
+				if (--startedThreads <= 0) {
+					releaseLock()
+				}
+			}
+
+			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
+				.then(function(view){
+					if (requestLock()){
+						incBar(0.995, 4)
+
+						startedThreads++
+						updateHeatmap(view).then(allThreadsFinished, debugRejectLog)
+
+						startedThreads++
+						updateCalmap(view).then(allThreadsFinished, debugRejectLog)
+
+						if (firstTime){
+							firstTime = false
+							startedThreads++
+							loadBarchartsData().then(allThreadsFinished, debugRejectLog)
+						}
+					} else{
+						debugLog('Heatmap: Couldn\'t request an actions lock')
+					}
+				}, debugRejectLog)
+	}
+}
+
+function setCalmapSelection(selCells) {
+	// Only save first and last entry, because the selected cells form a rectangle
+	calmapSelection = [selCells[0], selCells[selCells.length-1]]
+	requestUpdateHeatmap()
+		.then(function(){
+			if (requestLock()) {
+				incBar(0.995, 5)
+				updateHeatmap()
+					.then(releaseLock, debugRejectLog)
+			} else {
+				debugLog('Calmap: Couldn\'t request an actions lock')
+			}
+		}, debugRejectLog)
 }
 
 // --- UPDATES ----------------------------------------------- //

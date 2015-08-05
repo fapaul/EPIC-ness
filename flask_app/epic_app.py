@@ -34,10 +34,10 @@ def teardown_request(exception):
 		if connection.path == request.path:
 			try:
 				connection.connector.close()
+				connection_pool.remove(connection)
 			except:
 				continue
 			print len(connection_pool)
-			connection_pool.remove(connection)
 
 
 def connect_db(requestName):
@@ -95,7 +95,6 @@ def responseWeeks():
 
 @app.route('/getCalmapData', methods=['GET', 'POST'])
 def getCalmapData():
-	print('Executing calmap query...')
 	if (not DUMMY):
 		requestObj = request.args if (request.method == 'GET') else request.form
 		years = requestObj.getlist('years[]');
@@ -137,6 +136,7 @@ def getCalmapData():
 		#print(query)
 
 		cur = connect_db(request.path).cursor()
+		print('Executing calmap query...')
 		cur.execute(query)
 		timestamps = [[row[0], row[1], row[2]] for row in cur.fetchall()]
 
@@ -152,13 +152,13 @@ def getCalmapData():
 
 		return Response(json.dumps(result))
 	else:
+		print('Executing calmap query... (DUMMY)')
 		time.sleep(3)
 		resultAsJson = open('./queries/frontend/calmap/dummyData.json').read()
 		return Response(resultAsJson)
 
 @app.route('/getHeatmapData', methods=['GET', 'POST'])
 def getHeatmapData():
-	print('Executing heatmap query...')
 	if (not DUMMY):
 		requestObj = request.args if (request.method == 'GET') else request.form
 		years = requestObj.getlist('years[]');
@@ -227,11 +227,13 @@ def getHeatmapData():
 			'$', str(precision))
 		#print(query)
 		cur = connect_db(request.path).cursor()
+		print('Executing heatmap query...')
 		cur.execute(query)
 		locations = [dict(lat=row[0], long=row[1], count=row[2]) for row in cur.fetchall()]
 
 		return Response(json.dumps(locations))
 	else:
+		print('Executing heatmap query... (DUMMY)')
 		time.sleep(3)
 		return Response(json.dumps([
 			dict(lat=40.645320892333984, long=-73.7768783569336, count=1000),
