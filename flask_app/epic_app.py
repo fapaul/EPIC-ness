@@ -1,5 +1,5 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, Response, jsonify
-from credentials_hana import db_HOST, db_PORT, db_USER, db_PASSWORD, flask_user, flask_password
+from credentials_hana import db_HOST, db_PORT, db_USER, db_PASSWORD
 from secret_key import SECRET
 import pyhdb
 import json
@@ -14,8 +14,6 @@ from database_connection import DatabaseConnection
 DEBUG = True
 DUMMY = False
 SECRET_KEY = SECRET
-USERNAME = flask_user
-PASSWORD = flask_password
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -23,7 +21,9 @@ connection_pool = []
 
 @app.before_request
 def before_request():
-	connection_pool.append(DatabaseConnection(request.path))
+	# Dont create db connection when pulling a static file
+	if request.path[-3:] != '.js' and request.path[-4:] != '.css':
+		connection_pool.append(DatabaseConnection(request.path))
 
 @app.teardown_request
 def teardown_request(exception):
@@ -57,41 +57,27 @@ def frontend():
 # Contains counts for years, months and weeks
 @app.route('/getYearsCount', methods=['GET', 'POST'])
 def responseYears():
-	if request.method == 'GET':
-		months = request.args.getlist('months[]')
-		years = request.args.getlist('years[]')
-	else: # POST method
-		months = request.form.getlist('months[]')
-		years = request.form.getlist('years[]')
-
-	# Exported because queryMonths is also used by queryYears
-	return Response(json.dumps(queryYears(connect_db(request.path), DUMMY, months, years)))
+	return Response(json.dumps(queryYears(connect_db(request.path), DUMMY)))
 
 # Contains counts for months and weeks
 @app.route('/getMonthsCount', methods=['GET', 'POST'])
 def responseMonths():
 	if request.method == 'GET':
-		months = request.args.getlist('months[]')
 		years = request.args.getlist('years[]')
 	else: # POST method
-		months = request.form.getlist('months[]')
 		years = request.form.getlist('years[]')
-
-	# Exported because queryMonths is also used by queryYears
-	return Response(json.dumps(queryMonths(connect_db(request.path), DUMMY, months, years)))
+	return Response(json.dumps(queryMonths(connect_db(request.path), DUMMY, years)))
 
 # Contains count for weeks
 @app.route('/getWeeksCount', methods=['GET', 'POST'])
 def responseWeeks():
 	if request.method == 'GET':
-		months = request.args.getlist('months[]')
 		years = request.args.getlist('years[]')
+		months = request.args.getlist('months[]')
 	else: # POST method
-		months = request.form.getlist('months[]')
 		years = request.form.getlist('years[]')
-
-	# Exported because queryWeeks is also used by queryMonths
-	return Response(json.dumps(queryWeeks(db_connect(request.path), DUMMY, months, years)))
+		months = request.form.getlist('months[]')
+	return Response(json.dumps(queryWeeks(connect_db(request.path), DUMMY, years, months)))
 
 @app.route('/getCalmapData', methods=['GET', 'POST'])
 def getCalmapData():

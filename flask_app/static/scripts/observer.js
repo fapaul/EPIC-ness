@@ -5,8 +5,9 @@ var DEBUG = false
 // --- Global data store ------------------------------------- //
 
 var yearData = [{'year': '2010'}, {'year': '2011'}, {'year': '2012'}, {'year': '2013'}],
-	monthData = [{'month': 1}],
-	weekData = [{'week': 1}]
+	monthData = [{'month': 1}, {'month': 2}, {'month': 3}, {'month': 4}, {'month': 5},
+				{'month': 6}, {'month': 7}, {'month': 8}, {'month': 9}, {'month': 10}, {'month': 11}, {'month': 12}],
+	weekData = [{'week': 1}, {'week': 2}, {'week': 3}, {'week': 4}, {'week': 5}]
 
 var selectedYears = [1],
 		selectedMonths = [0, 1],
@@ -138,8 +139,8 @@ function changeBarchartSelection(barData) {
 	// Store clicked element
 	handleNewBarElement(barData, name)
 
-	startedThreads = 0
-	allThreadsFinished = function() {
+	var startedThreads = 0
+	var allThreadsFinished = function() {
 		if (--startedThreads <= 0) {
 			releaseLock()
 		}
@@ -174,8 +175,9 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 			southWest.lat != southWestBound.lat || southWest.long != southWestBound.long ||
 			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
 
-			startedThreads = 0
-			allThreadsFinished = function() {
+			var startedThreads = 0
+			var allThreadsFinished = function() {
+				console.log('Someone is done', startedThreads-1)
 				if (--startedThreads <= 0) {
 					releaseLock()
 				}
@@ -195,7 +197,7 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 						if (firstTime){
 							firstTime = false
 							startedThreads++
-							loadBarchartsData().then(allThreadsFinished, debugRejectLog)
+							updateBarcharts().then(allThreadsFinished, debugRejectLog)
 						}
 					} else{
 						debugLog('Heatmap: Couldn\'t request an actions lock')
@@ -247,14 +249,31 @@ function requestUpdateBarcharts(name, dontWait) {
 function updateBarcharts(name) {
 	debugLog('Update Barcharts ('+name+')')
 	var defer = Q.defer()
-	if (!name || name == "year") {
-		// Loads new data, reloads bar chart and releases lock
-		updateMonthsWeeks(selectedYears, selectedMonths)
-			.then(defer.resolve, defer.reject)
+	var startedThreads = 0
+	var allThreadsFinished = function() {
+		if (--startedThreads <= 0) {
+			regenerateBarCharts()
+			defer.resolve()
+		}
+	}
+	if (!name) {
+		startedThreads++
+		updateYears().then(allThreadsFinished, defer.reject)
+
+		startedThreads++
+		updateMonths(selectedYears).then(allThreadsFinished, defer.reject)
+
+		startedThreads++
+		updateWeeks(selectedYears, selectedMonths).then(allThreadsFinished, defer.reject)
+	} else if (name == "year") {
+		startedThreads++
+		updateMonths(selectedYears).then(allThreadsFinished, defer.reject)
+
+		startedThreads++
+		updateWeeks(selectedYears, selectedMonths).then(allThreadsFinished, defer.reject)
 	} else if (name == "month") {
-		// Loads new data, reloads bar chart and releases lock
-		updateWeeks(selectedYears, selectedMonths)
-			.then(defer.resolve, debug.reject)
+		startedThreads++
+		updateWeeks(selectedYears, selectedMonths).then(allThreadsFinished, defer.reject)
 	} else { // if (name == "week") {
 		// No bar chart changes
 		defer.resolve()

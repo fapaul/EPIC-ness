@@ -20,41 +20,38 @@ def createYearsCheck(years):
 
 	return yearsString
 
-def queryYears(db, isDummy, months, years):
+def queryYears(db, isDummy):
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getYearsTotal.sql').read()
 		#print(query)
 
-		cur = db.cursor()
 		print('Executing years query...')
+		cur = db.cursor()
 		cur.execute(query)
 		yearsCount = [row[1] for row in cur.fetchall()]
 
-		data = queryMonths(db, isDummy, months, years)
-		return {'years': yearsCount, 'months': data['months'], 'weeks': data['weeks']}
+		return yearsCount
 	else:
 		print('Executing years query... (DUMMY)')
 		time.sleep(2)
 		# Hardcoded results from Hana
 		yearsCount = [169001153, 176897199, 178544324, 173179759]
 
-		data = queryMonths(db, isDummy, months, years)
-		return {'years': yearsCount, 'months': data['months'], 'weeks': data['weeks']}
+		return yearsCount
 
-def queryMonths(db, isDummy, months, years):
+def queryMonths(db, isDummy, years):
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getMonthsTotal.sql').read()
 		yearsCheck = createYearsCheck(years)
 		query = query.replace('?', yearsCheck, 1)
 		#print(query)
 
-		cur = db.cursor()
 		print('Executing months query...')
+		cur = db.cursor()
 		cur.execute(query)
 		monthsCount = [row[1] for row in cur.fetchall()]
 
-		weeksCount = queryWeeks(db, isDummy, months, years)
-		return {'months': monthsCount, 'weeks': weeksCount}
+		return monthsCount
 	else:
 		print('Executing months query... (DUMMY)')
 		time.sleep(2)
@@ -113,10 +110,9 @@ def queryMonths(db, isDummy, months, years):
 			monthsCount[10] += 14388451
 			monthsCount[11] += 13971118
 
-		weeksCount = queryWeeks(db, isDummy, months, years)
-		return {'months': monthsCount, 'weeks': weeksCount}
+		return monthsCount
 
-def queryWeeks(db, isDummy, months, years):
+def queryWeeks(db, isDummy, years, months):
 	if (not isDummy):
 		query = open('./queries/frontend/barcharts/getWeeksTotal.sql').read()
 		yearsCheck = createYearsCheck(years)
@@ -124,8 +120,8 @@ def queryWeeks(db, isDummy, months, years):
 		query = query.replace('?', '('+(','.join(months))+')', 1)
 		#print(query)
 
-		cur = db.cursor()
 		print('Executing weeks query...')
+		cur = db.cursor()
 		cur.execute(query)
 		weeksCount = [row[1] for row in cur.fetchall()]
 

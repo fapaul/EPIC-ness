@@ -1,10 +1,9 @@
 
 function initBarcharts() {
-	barchartsCallback(JSON.stringify({
-		'years': [0,0,0,0],
-		'months': [0,0,0,0,0,0,0,0,0,0,0,0],
-		'weeks': [0,0,0,0,0]
-	}))
+	receiveYearsData(JSON.stringify([0,0,0,0]))
+	receiveMonthsData(JSON.stringify([0,0,0,0,0,0,0,0,0,0,0,0]))
+	receiveWeeksData(JSON.stringify([0,0,0,0,0]))
+	regenerateBarCharts()
 }
 
 function disableBarchartsControl() {
@@ -73,16 +72,14 @@ function handleNewBarElement(barData, name) {
 
 // --- Ajax Updates & Callbacks --------------------------------------------- //
 
-function loadBarchartsData() {
+function updateYears() {
 	var defer = Q.defer()
-	years = selectedYears.map(function(index){return yearData[index]['year']})
-	months = selectedMonths.map(function(index){return (index+1)+""})
 	$.ajax({
 		type: "POST",
 		url: "/getYearsCount",
-		data: {"years[]": years, "months[]": months},
+		data: {},
 		success: function(data) {
-			barchartsCallback(data)
+			receiveYearsData(data)
 			defer.resolve()
 		},
 		error: defer.reject
@@ -90,38 +87,23 @@ function loadBarchartsData() {
 	return defer.promise
 }
 
-function barchartsCallback(data) {
-	data = JSON.parse(data)
-	newYearsData = data['years']
-	newMonthsData = data['months']
-	newWeeksData = data['weeks']
-
-	yearData = []
-	monthData = []
-	weekData = []
-	for(var i = 0; i < newYearsData.length; i++) {
-		yearData.push({"year": (2010+i)+"", "value": newYearsData[i]+""})
+function receiveYearsData(newYearsData) {
+	newYearsData = JSON.parse(newYearsData)
+	for(var i = 0; i < yearData.length; i++) {
+		yearData[i]['value'] = newYearsData[i]+""
 	}
-	for(var i = 0; i < newMonthsData.length; i++) {
-		monthData.push({"month": (1+i)+"", "value": newMonthsData[i]+""})
-	}
-	for(var i = 0; i < newWeeksData.length; i++) {
-		weekData.push({"week": (1+i)+"", "value": newWeeksData[i]+""})
-	}
-	regenerateBarCharts()
 }
 
-function updateMonthsWeeks(selYears, selMonths) {
+function updateMonths(selYears) {
 	var defer = Q.defer()
 	// TODO(4): Export mapping to external function (because of several uses)
-	years = selYears.map(function(index){return yearData[index]['year']})
-	months = selMonths.map(function(index){return monthData[index]['month']})
+	years = selYears.map(function(index){return (2010+index)+""})
 	$.ajax({
 		type: "POST",
 		url: "/getMonthsCount",
-		data: {"years[]": years, "months[]": months},
+		data: {"years[]": years},
 		success: function(data) {
-			receiveMonthsWeeksData(data)
+			receiveMonthsData(data)
 			defer.resolve()
 		},
 		error: defer.reject
@@ -129,23 +111,17 @@ function updateMonthsWeeks(selYears, selMonths) {
 	return defer.promise
 }
 
-function receiveMonthsWeeksData(data) {
-	data = JSON.parse(data)
-	newMonthsData = data['months']
-	newWeeksData = data['weeks']
+function receiveMonthsData(newMonthsData) {
+	newMonthsData = JSON.parse(newMonthsData)
 	for(var i = 0; i < monthData.length; i++) {
 		monthData[i]['value'] = newMonthsData[i]+""
 	}
-	for(var i = 0; i < weekData.length; i++) {
-		weekData[i]['value'] = newWeeksData[i]+""
-	}
-	regenerateBarCharts()
 }
 
 function updateWeeks(selYears, selMonths) {
 	var defer = Q.defer()
-	years = selYears.map(function(index){return yearData[index]['year']})
-	months = selMonths.map(function(index){return monthData[index]['month']})
+	years = selYears.map(function(index){return (2010+index)+""})
+	months = selMonths.map(function(index){return (1+index)+""})
 	$.ajax({
 		type: "POST",
 		url: "/getWeeksCount",
@@ -164,5 +140,4 @@ function receiveWeeksData(newWeeksData) {
 	for(var i = 0; i < weekData.length; i++) {
 		weekData[i]['value'] = newWeeksData[i]+""
 	}
-	regenerateBarCharts()
 }
