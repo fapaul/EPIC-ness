@@ -84,7 +84,8 @@ function loadBarchartsData() {
 		success: function(data) {
 			barchartsCallback(data)
 			defer.resolve()
-		}
+		},
+		error: defer.reject
 	})
 	return defer.promise
 }
@@ -122,7 +123,8 @@ function updateMonthsWeeks(selYears, selMonths) {
 		success: function(data) {
 			receiveMonthsWeeksData(data)
 			defer.resolve()
-		}
+		},
+		error: defer.reject
 	})
 	return defer.promise
 }
@@ -151,7 +153,8 @@ function updateWeeks(selYears, selMonths) {
 		success: function(data) {
 			receiveWeeksData(data)
 			defer.resolve()
-		}
+		},
+		error: defer.reject
 	})
 	return defer.promise
 }

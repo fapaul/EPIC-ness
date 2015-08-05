@@ -30,12 +30,13 @@ var app = angular.module('myApp', ['angular-loading-bar', 'ngAnimate'])
 		loadingBar = cfpLoadingBar
 	})
 
-function incBarSlowly(limit) {
+function incBar(limit, speed) {
+	if (!speed) speed = 3 // slow
 	var status = loadingBar.status()
 	var step = (Math.random() * 3) * (limit - status) / 100
 	loadingBar.set(status+step)
 	if (status+step < limit) {
-		setTimeout(incBarSlowly, 250, limit)
+		setTimeout(incBar, 250, limit, speed)
 	}
 }
 
@@ -62,19 +63,20 @@ function changeBarchartSelection(barData) {
 	handleNewBarElement(barData, name)
 
 	// Update whole frontend (barcharts, heatmap, calmap)
+	var barTimePrediction = (name == "week") ? 0 : 0.5
 	requestUpdateBarcharts(name)
 		.then(function(name){
 			if (requestLock()) {
-				incBarSlowly(0.6)
+				incBar(barTimePrediction)
 				updateBarcharts(name)
 					.then(function(){
-						loadingBar.set(0.6)
-						incBarSlowly(0.8)
+						loadingBar.set(barTimePrediction)
+						incBar((1 - barTimePrediction) / 2)
 						return updateHeatmap()
 					}, debugRejectLog)
 					.then(function(){
-						loadingBar.set(0.8)
-						incBarSlowly(0.995)
+						loadingBar.set((1 - barTimePrediction) / 2)
+						incBar(0.995)
 						return updateCalmap()
 					}, debugRejectLog)
 					.then(releaseLock, debugRejectLog)
@@ -93,41 +95,51 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 			northEast.lat != northEastBound.lat || northEast.long != northEastBound.long) {
 
 			// TODO Für Paul: So würde es aussehen für Multithreaded Connections:
-			/*
+
 			startedThreads = 0
 			allThreadsFinished = function() {
-				startedThreads--
-				if (startedThreads <= 0) {
+				if (--startedThreads <= 0) {
 					releaseLock()
 				}
 			}
-			startedThreads++
-			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel).then(allThreadsFinished, debugRejectLog)
-			startedThreads++
-			requestUpdateCalmap(false).then(allThreadsFinished, debugRejectLog)
-			if (firstTime) {
-				firstTime = false
-				startedThreads++
-				// Load function only for initialization
-				loadBarchartsData().then(allThreadsFinished, debugRejectLog)
-			}
-			*/
 
 			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
 				.then(function(view){
 					if (requestLock()){
-						incBarSlowly(0.2)
+						incBar(0.995, 2)
+
+						startedThreads++
+						updateHeatmap(view).then(allThreadsFinished, debugRejectLog)
+
+						startedThreads++
+						updateCalmap(view).then(allThreadsFinished, debugRejectLog)
+
+						if (firstTime){
+							firstTime = false
+							startedThreads++
+							loadBarchartsData().then(allThreadsFinished, debugRejectLog)
+						}
+					} else{
+						debugLog('Heatmap: Couldn\'t request an actions lock')
+					}
+				}, debugRejectLog)
+			// */
+			/*
+			requestUpdateHeatmap(false, southWestBound, northEastBound, newZoomLevel)
+				.then(function(view){
+					if (requestLock()){
+						incBar(0.2)
 						updateHeatmap(view)
 							.then(function(){
 								loadingBar.set(0.2)
-								incBarSlowly(0.4)
+								incBar(0.4)
 								return updateCalmap()
 							}, debugRejectLog)
 							.then(function(){
 								if (firstTime){
 									firstTime = false
 									loadingBar.set(0.4)
-									incBarSlowly(0.995)
+									incBar(0.995)
 									return loadBarchartsData()
 								} else {
 									var defer = Q.defer()
@@ -140,6 +152,7 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 						debugLog('Heatmap: Couldn\'t request an actions lock')
 					}
 				}, debugRejectLog)
+		//*/
 	}
 }
 
@@ -149,9 +162,10 @@ function setCalmapSelection(selCells) {
 	requestUpdateHeatmap()
 		.then(function(){
 			if (requestLock()) {
-				incBarSlowly(0.995)
+				incBar(0.995, 5)
 				updateHeatmap()
 					.then(releaseLock, debugRejectLog)
+			} else {
 			}
 		}, debugRejectLog)
 }
@@ -339,7 +353,7 @@ function requestUpdateCalmap(dontWait) {
 	return defer.promise
 }
 
-function updateCalmap() {
+function updateCalmap(view) {
 	debugLog('Update Calmap')
 	var defer = Q.defer()
 	years = selectedYears.map(function(index){return yearData[index]['year']})
@@ -353,8 +367,8 @@ function updateCalmap() {
 			"years": years,
 			"months": months,
 			"weeks": weeks,
-			"southWest": southWest,
-			"northEast": northEast
+			"southWest": view ? view.newSouthWest : southWest,
+			"northEast": view ? view.newNorthEast : northEast
 		},
 		success: function(data) {
 			regenerateCalmap(data)
