@@ -177,7 +177,6 @@ function setHeatmapBounds(southWestBound, northEastBound, newZoomLevel) {
 
 			var startedThreads = 0
 			var allThreadsFinished = function() {
-				console.log('Someone is done', startedThreads-1)
 				if (--startedThreads <= 0) {
 					releaseLock()
 				}
@@ -223,26 +222,21 @@ function setCalmapSelection(selCells) {
 
 // --- UPDATES ----------------------------------------------- //
 
-function cancelUpdate() {
-	barchartsCallID++
-	heatmapCallID++
-	calmapCallID++
-}
+var callID = -1
 
-var barchartsCallID = -1
 function requestUpdateBarcharts(name, dontWait) {
 	debugLog('Request Barcharts Update ('+name+')')
   var defer = Q.defer()
-	var delay = (barchartsCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
+	var delay = (callID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 
 	setTimeout(function(myID){
 		// Check ID
-		if (myID == barchartsCallID) {
+		if (myID == callID) {
 			defer.resolve(name)
 		} else {
 			defer.reject()
 		}
-	}, delay, ++barchartsCallID)
+	}, delay, ++callID)
 	return defer.promise
 }
 
@@ -281,11 +275,10 @@ function updateBarcharts(name) {
 	return defer.promise
 }
 
-var heatmapCallID = -1
 function requestUpdateHeatmap(dontWait, newSouthWest, newNorthEast, newZoomLevel) {
 	debugLog('Request Heatmap Update')
   var defer = Q.defer()
-	var delay = (heatmapCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
+	var delay = (callID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 	debugLog(newSouthWest, newNorthEast, newZoomLevel)
 	if (!newSouthWest || !newNorthEast || newZoomLevel == null) {
 		newSouthWest = southWest
@@ -294,12 +287,12 @@ function requestUpdateHeatmap(dontWait, newSouthWest, newNorthEast, newZoomLevel
 	}
 	setTimeout(function(myID, newViewData){
 		// Check ID
-		if (myID == heatmapCallID) {
+		if (myID == callID) {
 			defer.resolve(newViewData)
 		} else {
 			defer.reject()
 		}
-	}, delay, ++heatmapCallID, {newSouthWest, newNorthEast, newZoomLevel})
+	}, delay, ++callID, {newSouthWest, newNorthEast, newZoomLevel})
 	return defer.promise
 }
 
@@ -339,19 +332,18 @@ function updateHeatmap(viewData) {
 	return defer.promise
 }
 
-var calmapCallID = -1
 function requestUpdateCalmap(dontWait) {
 	debugLog('Request Calmap Update')
   var defer = Q.defer()
-	var delay = (calmapCallID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
+	var delay = (callID >= 0 && !dontWait) ? UPDATE_DELAY * 1000 : 500
 	setTimeout(function(myID){
 		// Check ID
-		if (myID == calmapCallID) {
+		if (myID == callID) {
 			defer.resolve()
 		} else {
 			defer.reject()
 		}
-	}, delay, ++calmapCallID)
+	}, delay, ++callID)
 	return defer.promise
 }
 

@@ -22,6 +22,7 @@ function displayCalmap(){
 		domainGutter: 10,
 		legendHorizontalPosition: "center",
 		legend: [200, 5000, 10000, 30000, 50000, 100000],
+		legendColors: ["#AFD7B3", "#084A0F"],
 		considerMissingDataAsZero: true,
 		label: {
 			position: "left",
@@ -67,6 +68,17 @@ function enableCalmapControl() {
 
 function regenerateCalmap(calmapData) {
 	var changedData = JSON.parse(calmapData)
+
+	// Get Min, Max und teile in mehrere gleich große Teile
+	var values = Object.keys(changedData).map(function(key){return changedData[key]})
+	var arrayMax = Math.max.apply(null, values)
+	var arrayMin = Math.min.apply(null, values)
+	var step = (arrayMax - arrayMin) / 6
+	var levels = [arrayMin, arrayMin + step, arrayMin + 2*step, arrayMin + 3*step,
+			arrayMin + 4*step, arrayMin + 5*step, arrayMax]
+	console.log('New calendar map legend steps: ', levels)
+	cal.setLegend(levels)
+	
 	cal.update(changedData)
 	cal.options.data = changedData
 

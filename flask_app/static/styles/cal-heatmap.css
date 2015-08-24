@@ -60,7 +60,7 @@ Remove comment to apply this style to date with value equal to 0
 	background-color: #58965E;
 	fill: #58965E
 }
-
+/*
 .cal-heatmap-container .q1
 {
 	background-color: #AFD7B3;
@@ -102,7 +102,7 @@ Remove comment to apply this style to date with value equal to 0
 	background-color: #084A0F;
 	fill: #084A0F
 }
-
+*/
 .cal-heatmap-container rect.highlight
 {
   stroke: #0E9F28;

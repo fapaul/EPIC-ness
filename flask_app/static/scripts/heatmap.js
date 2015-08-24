@@ -98,7 +98,7 @@ function adjustBoundsData(){
 	if (newView != null && oldView != null && zoomLevel != null &&
 		((zoomLevel <= 12 && newZoomLevel <= 12) || (zoomLevel >= 12 && newZoomLevel >= 12)) &&
 			rectIsInRect(newView, oldView)) {
- 		cancelUpdate() // Dont update data
+ 		// Dont update data
 	} else {
 		setHeatmapBounds(newSouthWest, newNorthEast, newZoomLevel)
 	}
