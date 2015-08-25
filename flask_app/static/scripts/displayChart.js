@@ -85,21 +85,7 @@ function displayBarChart(chartData, divName) {
 		.attr('width', x.rangeBand())
 		.attr('y', function(d) { return y(d[value])})
 		.attr('height', function(d) { return height - y(d[value]) }) // 50 px distance to top border
-		.on("click", function(d) {
-			// TODO: Visualize locking (loading gif, gray layer, bottom note, etc.)
-			// TODO: Export this function to barcharts.js
-			if (!isLocked()) {
-				if (!d['clicked']) {
-					d['clicked'] = true;
-					d3.select(this).classed("highlight", true);
-					changeBarchartSelection(d);
-				} else {
-					d['clicked'] = false;
-					d3.select(this).classed("highlight", false);
-					changeBarchartSelection(d);
-				}
-			}
-		})
+		.on("click", barClicked)
 		.on("mouseover", function(d) {
 			if (!d['clicked']) {
 				d3.select(this).classed("highlight", true);

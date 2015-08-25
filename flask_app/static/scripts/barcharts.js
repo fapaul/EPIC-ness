@@ -18,6 +18,20 @@ function enableBarchartsControl() {
 	$('#barchart-3').css('opacity', 1)
 }
 
+function barClicked(d) {
+	if (!isLocked()) {
+		if (!d['clicked']) {
+			d['clicked'] = true;
+			d3.select(this).classed("highlight", true);
+			changeBarchartSelection(d);
+		} else {
+			d['clicked'] = false;
+			d3.select(this).classed("highlight", false);
+			changeBarchartSelection(d);
+		}
+	}
+}
+
 function updateSelectionView() {
 	d3.selectAll('.yearBar').each(function(d){
 		d['clicked'] = selectedYears.indexOf(d['index']) != -1
