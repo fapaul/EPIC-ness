@@ -76,9 +76,9 @@ function regenerateCalmap(calmapData) {
 	var step = (arrayMax - arrayMin) / 6
 	var levels = [arrayMin, arrayMin + step, arrayMin + 2*step, arrayMin + 3*step,
 			arrayMin + 4*step, arrayMin + 5*step, arrayMax]
-	console.log('New calendar map legend steps: ', levels)
+	debugLog('New calendar map legend steps: ', levels)
 	cal.setLegend(levels)
-	
+
 	cal.update(changedData)
 	cal.options.data = changedData
 

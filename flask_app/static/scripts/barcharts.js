@@ -20,30 +20,24 @@ function enableBarchartsControl() {
 
 function barClicked(d) {
 	if (!isLocked()) {
-		if (!d['clicked']) {
-			d['clicked'] = true;
-			d3.select(this).classed("highlight", true);
-			changeBarchartSelection(d);
-		} else {
-			d['clicked'] = false;
-			d3.select(this).classed("highlight", false);
-			changeBarchartSelection(d);
-		}
+		d3.select(this).classed("barHighlight", !d['clicked'])
+		d['clicked'] = !d['clicked']
+		changeBarchartSelection(d)
 	}
 }
 
 function updateSelectionView() {
 	d3.selectAll('.yearBar').each(function(d){
 		d['clicked'] = selectedYears.indexOf(d['index']) != -1
-		d3.select(this).classed('highlight', d['clicked'])
+		d3.select(this).classed('barHighlight', d['clicked'])
 	})
 	d3.selectAll('.monthBar').each(function(d){
 		d['clicked'] = selectedMonths.indexOf(d['index']) != -1
-		d3.select(this).classed('highlight', d['clicked'])
+		d3.select(this).classed('barHighlight', d['clicked'])
 	})
 	d3.selectAll('.weekBar').each(function(d){
 		d['clicked'] = selectedWeeks.indexOf(d['index']) != -1
-		d3.select(this).classed('highlight', d['clicked'])
+		d3.select(this).classed('barHighlight', d['clicked'])
 	})
 }
 
@@ -86,43 +80,11 @@ function handleNewBarElement(barData, name) {
 
 // --- Ajax Updates & Callbacks --------------------------------------------- //
 
-function updateYears() {
-	var defer = Q.defer()
-	$.ajax({
-		type: "POST",
-		url: "/getYearsCount",
-		data: {},
-		success: function(data) {
-			receiveYearsData(data)
-			defer.resolve()
-		},
-		error: defer.reject
-	})
-	return defer.promise
-}
-
 function receiveYearsData(newYearsData) {
 	newYearsData = JSON.parse(newYearsData)
 	for(var i = 0; i < yearData.length; i++) {
 		yearData[i]['value'] = newYearsData[i]+""
 	}
-}
-
-function updateMonths(selYears) {
-	var defer = Q.defer()
-	// TODO(4): Export mapping to external function (because of several uses)
-	years = selYears.map(function(index){return (2010+index)+""})
-	$.ajax({
-		type: "POST",
-		url: "/getMonthsCount",
-		data: {"years[]": years},
-		success: function(data) {
-			receiveMonthsData(data)
-			defer.resolve()
-		},
-		error: defer.reject
-	})
-	return defer.promise
 }
 
 function receiveMonthsData(newMonthsData) {
@@ -132,26 +94,9 @@ function receiveMonthsData(newMonthsData) {
 	}
 }
 
-function updateWeeks(selYears, selMonths) {
-	var defer = Q.defer()
-	years = selYears.map(function(index){return (2010+index)+""})
-	months = selMonths.map(function(index){return (1+index)+""})
-	$.ajax({
-		type: "POST",
-		url: "/getWeeksCount",
-		data: {"years[]": years, "months[]": months},
-		success: function(data) {
-			receiveWeeksData(data)
-			defer.resolve()
-		},
-		error: defer.reject
-	})
-	return defer.promise
-}
-
 function receiveWeeksData(newWeeksData) {
 	newWeeksData = JSON.parse(newWeeksData)
 	for(var i = 0; i < weekData.length; i++) {
 		weekData[i]['value'] = newWeeksData[i]+""
 	}
-}
+}

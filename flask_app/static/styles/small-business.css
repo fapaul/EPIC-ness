@@ -78,7 +78,7 @@ rect.mouseListener {
   cursor: pointer
 }
 
-.highlight {
+.barHighlight {
 	fill: #383
 }
 

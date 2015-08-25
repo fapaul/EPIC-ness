@@ -38,7 +38,7 @@ var app = angular.module('myApp', ['angular-loading-bar', 'ngAnimate'])
 		loadingBar = cfpLoadingBar
 	})
 
-// --- Lock, LoadingBar, Logging ----------------------------- //
+// --- Lock & Logging ---------------------------------------- //
 
 function requestLock() {
 	if (locked) {
@@ -100,6 +100,7 @@ function showLoadingAnimation() {
 	}
 }
 
+// --- Loading Bar ------------------------------------------- //
 
 function incBar(limit, speed) {
 	if (!speed) speed = 3 // slow
@@ -224,6 +225,8 @@ function setCalmapSelection(selCells) {
 
 var callID = -1
 
+// --- Update Barcharts --- //
+
 function requestUpdateBarcharts(name, dontWait) {
 	debugLog('Request Barcharts Update ('+name+')')
   var defer = Q.defer()
@@ -274,6 +277,57 @@ function updateBarcharts(name) {
 	}
 	return defer.promise
 }
+
+function updateYears() {
+	var defer = Q.defer()
+	$.ajax({
+		type: "POST",
+		url: "/getYearsCount",
+		data: {},
+		success: function(data) {
+			receiveYearsData(data)
+			defer.resolve()
+		},
+		error: defer.reject
+	})
+	return defer.promise
+}
+
+function updateMonths(selYears) {
+	var defer = Q.defer()
+	// TODO(4): Export mapping to external function (because of several uses)
+	years = selYears.map(function(index){return (2010+index)+""})
+	$.ajax({
+		type: "POST",
+		url: "/getMonthsCount",
+		data: {"years[]": years},
+		success: function(data) {
+			receiveMonthsData(data)
+			defer.resolve()
+		},
+		error: defer.reject
+	})
+	return defer.promise
+}
+
+function updateWeeks(selYears, selMonths) {
+	var defer = Q.defer()
+	years = selYears.map(function(index){return (2010+index)+""})
+	months = selMonths.map(function(index){return (1+index)+""})
+	$.ajax({
+		type: "POST",
+		url: "/getWeeksCount",
+		data: {"years[]": years, "months[]": months},
+		success: function(data) {
+			receiveWeeksData(data)
+			defer.resolve()
+		},
+		error: defer.reject
+	})
+	return defer.promise
+}
+
+// --- Update Heatmap  --- //
 
 function requestUpdateHeatmap(dontWait, newSouthWest, newNorthEast, newZoomLevel) {
 	debugLog('Request Heatmap Update')
@@ -331,6 +385,8 @@ function updateHeatmap(viewData) {
 	})
 	return defer.promise
 }
+
+// --- Update Calmap   --- //
 
 function requestUpdateCalmap(dontWait) {
 	debugLog('Request Calmap Update')
